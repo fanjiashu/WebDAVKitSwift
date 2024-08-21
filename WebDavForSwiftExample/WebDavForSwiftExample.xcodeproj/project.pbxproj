@@ -117,6 +117,7 @@
 				04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */,
 				04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */,
 				04FD3CA32C759E0B0035D186 /* ViewController.swift */,
+				04FD3CD42C759E5A0035D186 /* WebDAVFileManager.swift */,
 				04FD3CA52C759E0B0035D186 /* Main.storyboard */,
 				04FD3CA82C759E0D0035D186 /* Assets.xcassets */,
 				04FD3CAA2C759E0D0035D186 /* LaunchScreen.storyboard */,
@@ -150,7 +151,6 @@
 				04FD3CD12C759E5A0035D186 /* WebDAV+Image.swift */,
 				04FD3CD22C759E5A0035D186 /* WebDAVError.swift */,
 				04FD3CD32C759E5A0035D186 /* WebDAVFile.swift */,
-				04FD3CD42C759E5A0035D186 /* WebDAVFileManager.swift */,
 			);
 			name = WebDavKit;
 			path = ../../WebDavKit;
