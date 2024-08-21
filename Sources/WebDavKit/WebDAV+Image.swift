@@ -50,6 +50,7 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
         #endif
     }
     
+    #if canImport(UIKit)
     private func getImage() async -> UIImage? {
         var request = URLRequest(url: file.url)
         request.addValue("Basic \(file.auth)", forHTTPHeaderField: "Authorization")
@@ -61,6 +62,8 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
             return nil
         }
     }
+    #endif
 }
+
 
 
