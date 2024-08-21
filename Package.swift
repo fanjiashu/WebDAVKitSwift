@@ -2,27 +2,27 @@
 import PackageDescription
 
 let package = Package(
-    name: "DAVKitSwift",
+    name: "WebDavKit",
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15)
     ],
     products: [
         .library(
-            name: "DAVKitSwift",
-            targets: ["DAVKitSwift"]),
+            name: "WebDavKit",
+            targets: ["WebDavKit"]),
     ],
     dependencies: [
         .package(url: "https://github.com/drmohundro/SWXMLHash.git", from: "7.0.2"),
     ],
     targets: [
         .target(
-            name: "DAVKitSwift",
+            name: "WebDavKit",
             dependencies: [],
             path: "Sources"),
         .testTarget(
-            name: "DAVKitSwiftTests",
-            dependencies: ["DAVKitSwift"],
+            name: "WebDavKitTests",
+            dependencies: ["WebDavKit"],
             path: "Tests"),
     ]
 )
