@@ -7,7 +7,7 @@
 //
 import SwiftUI
 
-struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
+public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
     @State var uiImage: UIImage?
 
     let file: WebDAVFile

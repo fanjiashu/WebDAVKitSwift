@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum WebDAVError: Error {
+public enum WebDAVError: Error {
     /// The credentials or path were unable to be encoded.
     /// No network request was called.
     case invalidCredentials

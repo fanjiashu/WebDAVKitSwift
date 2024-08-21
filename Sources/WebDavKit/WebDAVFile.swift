@@ -9,7 +9,7 @@
 import Foundation
 import SWXMLHash
 
-struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
+public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
 
     public private(set) var path: String
     public private(set) var id: String

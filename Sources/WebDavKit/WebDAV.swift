@@ -8,7 +8,7 @@ import Foundation
 import SWXMLHash
 
 // WebDAV 类用于管理与 WebDAV 服务器的交互
-class WebDAV {
+public class WebDAV {
     var baseURL: URL
     private var auth: String
     
@@ -68,7 +68,7 @@ class WebDAV {
 }
 
 // 扩展 WebDAV 类以实现文件操作
-extension WebDAV {
+public extension WebDAV {
     
     /// 检测与 WebDAV 服务器的连接是否正常
     func ping() async -> Bool {
@@ -305,7 +305,7 @@ extension WebDAV {
 }
 
 // 扩展 WebDAV 类以实现请求创建
-extension WebDAV {
+public extension WebDAV {
     
     /// 创建一个授权的 URL 请求
     /// - Parameters:

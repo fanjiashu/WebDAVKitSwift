@@ -4,7 +4,7 @@
 //
 //  Created by mac on 2024/8/20.
 //
-enum HTTPMethod: String {
+public enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
     case put = "PUT"
