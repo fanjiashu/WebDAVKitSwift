@@ -1,16 +1,14 @@
 # README
 
 ## Overview
-This Swift package, **DAVKitSwift**, provides a comprehensive set of functions to interact with WebDAV servers, allowing you to perform various file operations such as creating folders, uploading, listing, downloading, copying, moving, and deleting files and folders within your iOS or macOS applications.
+Welcome to **DAVKitSwift**, a lightweight and powerful WebDAV client library for Swift. This package enables you to interact with WebDAV servers seamlessly, providing a suite of functionalities to manage files and directories on the server.
 
 ## Features
-- Connect to WebDAV servers using basic authentication.
-- Create and delete directories on the server.
-- Upload and download files with ease.
-- List all files within a specified directory.
-- Copy and move files to different server locations.
-- Check the connection status to the WebDAV server.
-- Handle errors and provide feedback for each operation.
+- Establish connections to WebDAV servers using basic authentication.
+- Create, list, and delete directories directly from your Swift applications.
+- Upload and download files with support for various content types.
+- Copy and move files between different directories on the server.
+- Comprehensive error handling to ensure smooth operation.
 
 ## Requirements
 - iOS 13.0+ / macOS 10.15+ (Catalyst is not supported)
@@ -18,80 +16,95 @@ This Swift package, **DAVKitSwift**, provides a comprehensive set of functions t
 - Swift 5.3+
 
 ## Installation
-You can install **DAVKitSwift** using the Swift Package Manager. There are two primary ways to add the package to your project:
+You can install **DAVKitSwift** using the Swift Package Manager. Add the following entry to your `Package.swift` file:
 
-### Xcode Integrated
-1. Open your Xcode project.
-2. Select your project in the Project Navigator, then go to the "Swift Packages" tab.
-3. Click the "+" button to add a package and enter the following URL: `https://github.com/fanjiashu/DAVKitSwift.git`
-4. Follow the prompts to complete the installation.
+```swift
+dependencies: [
+    .package(url: "https://github.com/fanjiashu/DAVKitSwift.git", from: "1.0.0"),
+]
+```
 
-### Manually
-1. Open your Xcode project.
-2. Right-click on your project in the Project Navigator and select "Add Packages..."
-3. Enter the package repository URL: `https://github.com/fanjiashu/DAVKitSwift.git` and click "Add Package".
-4. Choose the version you want to use and complete the installation.
+Or, you can integrate it directly through Xcode:
+1. Click on `File` > `Swift Packages` > `Add Package Dependency...`
+2. Enter the URL: `https://github.com/fanjiashu/DAVKitSwift.git`
+3. Follow the prompts to complete the installation.
 
 ## Usage
-To use **DAVKitSwift** in your project, first, import it in your Swift file:
+After integrating **DAVKitSwift** into your project, you can start using it by importing the package and calling its API:
 
 ```swift
 import DAVKitSwift
+
+// Example: Initialize WebDAV client and perform operations
+let webDAVClient = WebDAVClient(baseURL: "https://your.webdav.server")
+// Add your WebDAV operations here
 ```
 
-Then, follow the examples provided in the [Usage](#usage) section to perform various WebDAV operations.
-
-### Usage Examples
-... (Provide specific examples of how to use the package)
+### Example Operations
+- Creating a directory
+- Uploading a file
+- Listing directory contents
+- Downloading a file
+- Deleting a file or directory
 
 ## Contributing
-Contributions are welcome! If you find any issues or have suggestions for improvements, please feel free to create an issue or submit a pull request.
+We welcome contributions to **DAVKitSwift**. If you have suggestions or find any issues, feel free to create an issue or submit a pull request.
 
 ## License
-This package is released under the [Apache License 2.0](LICENSE). For details, check the LICENSE file.
+**DAVKitSwift** is released under the [Apache License 2.0](LICENSE). For more information, see the LICENSE file.
 
 ---
 
 # 概述
-这个 Swift 包 **DAVKitSwift** 提供了与 WebDAV 服务器交互的全面功能集，允许您在 iOS 或 macOS 应用程序中执行创建文件夹、上传、列出、下载、复制、移动和删除文件和文件夹等各种文件操作。
+欢迎使用 **DAVKitSwift**，这是一个用于 Swift 的轻量级且功能强大的 WebDAV 客户端库。这个包使您能够无缝地与 WebDAV 服务器交互，提供了一系列功能来管理服务器上的文件和目录。
 
 ## 特性
-... (与上文相同)
+- 使用基本认证建立与 WebDAV 服务器的连接。
+- 直接从您的 Swift 应用程序中创建、列出和删除目录。
+- 支持多种内容类型上传和下载文件。
+- 在服务器上的不同目录之间复制和移动文件。
+- 全面的错误处理，确保操作顺畅。
 
 ## 要求
-... (与上文相同)
+- iOS 13.0+ / macOS 10.15+ (不支持 Catalyst)
+- Xcode 12.0+
+- Swift 5.3+
 
 ## 安装
-您可以使用 Swift Package Manager 安装 **DAVKitSwift**。向项目添加包有两种主要方式：
+您可以使用 Swift Package Manager 安装 **DAVKitSwift**。向您的 `Package.swift` 文件添加以下条目：
 
-### Xcode 集成
-1. 打开您的 Xcode 项目。
-2. 在项目导航器中选择您的项目，然后转到 "Swift Packages" 标签页。
-3. 点击 "+" 按钮添加一个包，并输入以下 URL：`https://github.com/fanjiashu/DAVKitSwift.git`
-4. 按照提示完成安装。
+```swift
+dependencies: [
+    .package(url: "https://github.com/fanjiashu/DAVKitSwift.git", from: "1.0.0"),
+]
+```
 
-### 手动添加
-1. 打开您的 Xcode 项目。
-2. 在项目导航器中右键点击您的项目，选择 "Add Packages..."。
-3. 输入包的仓库 URL：`https://github.com/fanjiashu/DAVKitSwift.git` 并点击 "Add Package"。
-4. 选择您想使用的版本并完成安装。
+或者，您可以直接通过 Xcode 集成：
+1. 点击 `文件` > `Swift 包` > `添加包依赖...`
+2. 输入 URL：`https://github.com/fanjiashu/DAVKitSwift.git`
+3. 按照提示完成安装。
 
 ## 使用方法
-在项目中使用 **DAVKitSwift**，首先，在您的 Swift 文件中导入它：
+将 **DAVKitSwift** 集成到您的项目后，您可以通过导入包并调用其 API 开始使用它：
 
 ```swift
 import DAVKitSwift
+
+// 示例：初始化 WebDAV 客户端并执行操作
+let webDAVClient = WebDAVClient(baseURL: "https://your.webdav.server")
+// 在此处添加您的 WebDAV 操作
 ```
 
-然后，按照 [使用方法](#使用方法) 部分提供的示例执行各种 WebDAV 操作。
-
-### 使用示例
-... (提供如何使用包的具体示例)
+### 示例操作
+- 创建目录
+- 上传文件
+- 列出目录内容
+- 下载文件
+- 删除文件或目录
 
 ## 贡献
-我们欢迎贡献！如果您发现任何问题或有改进建议，请随时提出问题或提交拉取请求。
+我们欢迎对 **DAVKitSwift** 的贡献。如果您有建议或发现任何问题，请随时提出问题或提交拉取请求。
 
 ## 许可证
-此包根据 [Apache License 2.0](LICENSE) 发布。详情请参阅 LICENSE 文件。
-
+**DAVKitSwift** 根据 [Apache License 2.0](LICENSE) 发布。更多信息请参见 LICENSE 文件。
 
