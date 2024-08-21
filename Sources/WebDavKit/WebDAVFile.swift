@@ -17,9 +17,10 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
     public private(set) var lastModified: Date
     public private(set) var size: Int64
     public private(set) var url: URL
-    public private(set) var auth: String
+    public private(set) var auth: String?  // 基本认证信息
+    public private(set) var cookie: String?  // Cookie 认证信息
 
-    init(path: String, id: String, isDirectory: Bool, lastModified: Date, size: Int64, url: URL, auth: String) {
+    init(path: String, id: String, isDirectory: Bool, lastModified: Date, size: Int64, url: URL, auth: String? = nil, cookie: String? = nil) {
         self.path = path
         self.id = id
         self.isDirectory = isDirectory
@@ -27,17 +28,10 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         self.size = size
         self.url = url
         self.auth = auth
+        self.cookie = cookie
     }
     
-    /*
-     Received XML: <?xml version="1.0" encoding="utf-8" ?><D:multistatus xmlns:D="DAV:">
-     <D:response><D:href>/testFolder</D:href><D:propstat><D:prop><D:resourcetype><D:collection/></D:resourcetype><D:getlastmodified>Tue, 20 Aug 2024 10:33:53 GMT</D:getlastmodified></D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat></D:response>
-     <D:response><D:href>/testFolder/sample.txt</D:href><D:propstat><D:prop><D:resourcetype/><D:getlastmodified>Tue, 20 Aug 2024 10:33:53 GMT</D:getlastmodified><D:getcontentlength>19</D:getcontentlength></D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat></D:response>
-     </D:multistatus>
-     */
-
-    init?(xml: XMLIndexer, baseURL: URL, auth: String) {
-        // Print the XML content as a string
+    init?(xml: XMLIndexer, baseURL: URL, auth: String? = nil, cookie: String? = nil) {
         print("Received XML: \(String(describing: xml.element))")
         
         guard let hrefElement = xml["href"].element else {
@@ -74,9 +68,8 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
 
         let url = baseURL.appendingPathComponent(path)
         
-        self.init(path: path, id: UUID().uuidString, isDirectory: isDirectory, lastModified: date, size: size, url: url, auth: auth)
+        self.init(path: path, id: UUID().uuidString, isDirectory: isDirectory, lastModified: date, size: size, url: url, auth: auth, cookie: cookie)
     }
-
 
     static let rfc1123Formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -102,3 +95,4 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         isDirectory ? fileName : fileURL.deletingPathExtension().lastPathComponent
     }
 }
+
