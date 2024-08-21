@@ -2,13 +2,19 @@
 //
 //  WebDAV.swift
 //  hclient3
-//
-//  Created by mac on 2024/8/20.
-//
+
+#if canImport(UIKit)
+import UIKit
+#endif
+
 import SwiftUI
 
 public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
+    #if canImport(UIKit)
     @State var uiImage: UIImage?
+    #else
+    @State var uiImage: Any? // Placeholder for non-iOS platforms
+    #endif
 
     let file: WebDAVFile
     let content: (Image) -> Content
@@ -25,6 +31,7 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
     }
     
     public var body: some View {
+        #if canImport(UIKit)
         if let uiImage = uiImage {
             content(Image(uiImage: uiImage))
         } else {
@@ -33,8 +40,12 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
                     self.uiImage = await getImage()
                 }
         }
+        #else
+        placeholder()
+        #endif
     }
     
+    #if canImport(UIKit)
     private func getImage() async -> UIImage? {
         var request = URLRequest(url: file.url)
         request.addValue("Basic \(file.auth)", forHTTPHeaderField: "Authorization")
@@ -46,5 +57,7 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
             return nil
         }
     }
+    #endif
 }
+
 
