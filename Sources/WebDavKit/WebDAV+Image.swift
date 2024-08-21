@@ -14,7 +14,7 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
     let content: (Image) -> Content
     let placeholder: () -> Placeholder
     
-    init(
+    public init(
         file: WebDAVFile,
         @ViewBuilder content: @escaping (Image) -> Content,
         @ViewBuilder placeholder: @escaping () -> Placeholder
@@ -23,7 +23,8 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
         self.content = content
         self.placeholder = placeholder
     }
-    var body: some View {
+    
+    public var body: some View {
         if let uiImage = uiImage {
             content(Image(uiImage: uiImage))
         } else {
@@ -33,15 +34,17 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
                 }
         }
     }
+    
     private func getImage() async -> UIImage? {
         var request = URLRequest(url: file.url)
         request.addValue("Basic \(file.auth)", forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError("Error while fetching attchment") }
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError("Error while fetching attachment") }
             return UIImage(data: data)
         } catch {
             return nil
         }
     }
 }
+
