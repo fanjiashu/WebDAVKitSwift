@@ -31,18 +31,22 @@ public struct AsyncImageWithAuth<Content: View, Placeholder: View>: View {
     }
     
     public var body: some View {
-        #if canImport(UIKit)
-        if let uiImage = uiImage {
-            content(Image(uiImage: uiImage))
-        } else {
+        if #available(iOS 15.0, *) {
+#if canImport(UIKit)
+            if let uiImage = uiImage {
+                content(Image(uiImage: uiImage))
+            } else {
+                placeholder()
+                    .task {
+                        self.uiImage = await getImage()
+                    }
+            }
+#else
             placeholder()
-                .task {
-                    self.uiImage = await getImage()
-                }
+#endif
+        } else {
+            // Fallback on earlier versions
         }
-        #else
-        placeholder()
-        #endif
     }
     
     #if canImport(UIKit)
