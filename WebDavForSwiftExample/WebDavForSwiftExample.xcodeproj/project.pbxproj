@@ -1,0 +1,674 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		04FD3CA02C759E0B0035D186 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */; };
+		04FD3CA22C759E0B0035D186 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */; };
+		04FD3CA42C759E0B0035D186 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CA32C759E0B0035D186 /* ViewController.swift */; };
+		04FD3CA72C759E0B0035D186 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 04FD3CA62C759E0B0035D186 /* Base */; };
+		04FD3CA92C759E0D0035D186 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04FD3CA82C759E0D0035D186 /* Assets.xcassets */; };
+		04FD3CAC2C759E0D0035D186 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 04FD3CAB2C759E0D0035D186 /* Base */; };
+		04FD3CB72C759E0D0035D186 /* WebDavForSwiftExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CB62C759E0D0035D186 /* WebDavForSwiftExampleTests.swift */; };
+		04FD3CC12C759E0D0035D186 /* WebDavForSwiftExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CC02C759E0D0035D186 /* WebDavForSwiftExampleUITests.swift */; };
+		04FD3CC32C759E0D0035D186 /* WebDavForSwiftExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CC22C759E0D0035D186 /* WebDavForSwiftExampleUITestsLaunchTests.swift */; };
+		04FD3CD62C759E5A0035D186 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CCF2C759E5A0035D186 /* HTTPMethod.swift */; };
+		04FD3CD72C759E5A0035D186 /* WebDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CD02C759E5A0035D186 /* WebDAV.swift */; };
+		04FD3CD82C759E5A0035D186 /* WebDAV+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CD12C759E5A0035D186 /* WebDAV+Image.swift */; };
+		04FD3CD92C759E5A0035D186 /* WebDAVError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CD22C759E5A0035D186 /* WebDAVError.swift */; };
+		04FD3CDA2C759E5A0035D186 /* WebDAVFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CD32C759E5A0035D186 /* WebDAVFile.swift */; };
+		04FD3CDB2C759E5A0035D186 /* WebDAVFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CD42C759E5A0035D186 /* WebDAVFileManager.swift */; };
+		04FD3CDE2C759E7D0035D186 /* SWXMLHash in Frameworks */ = {isa = PBXBuildFile; productRef = 04FD3CDD2C759E7D0035D186 /* SWXMLHash */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		04FD3CB32C759E0D0035D186 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 04FD3C942C759E0B0035D186 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04FD3C9B2C759E0B0035D186;
+			remoteInfo = WebDavForSwiftExample;
+		};
+		04FD3CBD2C759E0D0035D186 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 04FD3C942C759E0B0035D186 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04FD3C9B2C759E0B0035D186;
+			remoteInfo = WebDavForSwiftExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		04FD3C9C2C759E0B0035D186 /* WebDavForSwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebDavForSwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		04FD3CA32C759E0B0035D186 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		04FD3CA62C759E0B0035D186 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		04FD3CA82C759E0D0035D186 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		04FD3CAB2C759E0D0035D186 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		04FD3CAD2C759E0D0035D186 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		04FD3CB22C759E0D0035D186 /* WebDavForSwiftExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebDavForSwiftExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		04FD3CB62C759E0D0035D186 /* WebDavForSwiftExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDavForSwiftExampleTests.swift; sourceTree = "<group>"; };
+		04FD3CBC2C759E0D0035D186 /* WebDavForSwiftExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebDavForSwiftExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		04FD3CC02C759E0D0035D186 /* WebDavForSwiftExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDavForSwiftExampleUITests.swift; sourceTree = "<group>"; };
+		04FD3CC22C759E0D0035D186 /* WebDavForSwiftExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDavForSwiftExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		04FD3CCF2C759E5A0035D186 /* HTTPMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
+		04FD3CD02C759E5A0035D186 /* WebDAV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebDAV.swift; sourceTree = "<group>"; };
+		04FD3CD12C759E5A0035D186 /* WebDAV+Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WebDAV+Image.swift"; sourceTree = "<group>"; };
+		04FD3CD22C759E5A0035D186 /* WebDAVError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebDAVError.swift; sourceTree = "<group>"; };
+		04FD3CD32C759E5A0035D186 /* WebDAVFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebDAVFile.swift; sourceTree = "<group>"; };
+		04FD3CD42C759E5A0035D186 /* WebDAVFileManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebDAVFileManager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		04FD3C992C759E0B0035D186 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FD3CDE2C759E7D0035D186 /* SWXMLHash in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CAF2C759E0D0035D186 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CB92C759E0D0035D186 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		04FD3C932C759E0B0035D186 = {
+			isa = PBXGroup;
+			children = (
+				04FD3C9E2C759E0B0035D186 /* WebDavForSwiftExample */,
+				04FD3CB52C759E0D0035D186 /* WebDavForSwiftExampleTests */,
+				04FD3CBF2C759E0D0035D186 /* WebDavForSwiftExampleUITests */,
+				04FD3C9D2C759E0B0035D186 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		04FD3C9D2C759E0B0035D186 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				04FD3C9C2C759E0B0035D186 /* WebDavForSwiftExample.app */,
+				04FD3CB22C759E0D0035D186 /* WebDavForSwiftExampleTests.xctest */,
+				04FD3CBC2C759E0D0035D186 /* WebDavForSwiftExampleUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		04FD3C9E2C759E0B0035D186 /* WebDavForSwiftExample */ = {
+			isa = PBXGroup;
+			children = (
+				04FD3CD52C759E5A0035D186 /* WebDavKit */,
+				04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */,
+				04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */,
+				04FD3CA32C759E0B0035D186 /* ViewController.swift */,
+				04FD3CA52C759E0B0035D186 /* Main.storyboard */,
+				04FD3CA82C759E0D0035D186 /* Assets.xcassets */,
+				04FD3CAA2C759E0D0035D186 /* LaunchScreen.storyboard */,
+				04FD3CAD2C759E0D0035D186 /* Info.plist */,
+			);
+			path = WebDavForSwiftExample;
+			sourceTree = "<group>";
+		};
+		04FD3CB52C759E0D0035D186 /* WebDavForSwiftExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				04FD3CB62C759E0D0035D186 /* WebDavForSwiftExampleTests.swift */,
+			);
+			path = WebDavForSwiftExampleTests;
+			sourceTree = "<group>";
+		};
+		04FD3CBF2C759E0D0035D186 /* WebDavForSwiftExampleUITests */ = {
+			isa = PBXGroup;
+			children = (
+				04FD3CC02C759E0D0035D186 /* WebDavForSwiftExampleUITests.swift */,
+				04FD3CC22C759E0D0035D186 /* WebDavForSwiftExampleUITestsLaunchTests.swift */,
+			);
+			path = WebDavForSwiftExampleUITests;
+			sourceTree = "<group>";
+		};
+		04FD3CD52C759E5A0035D186 /* WebDavKit */ = {
+			isa = PBXGroup;
+			children = (
+				04FD3CCF2C759E5A0035D186 /* HTTPMethod.swift */,
+				04FD3CD02C759E5A0035D186 /* WebDAV.swift */,
+				04FD3CD12C759E5A0035D186 /* WebDAV+Image.swift */,
+				04FD3CD22C759E5A0035D186 /* WebDAVError.swift */,
+				04FD3CD32C759E5A0035D186 /* WebDAVFile.swift */,
+				04FD3CD42C759E5A0035D186 /* WebDAVFileManager.swift */,
+			);
+			name = WebDavKit;
+			path = ../../WebDavKit;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		04FD3C9B2C759E0B0035D186 /* WebDavForSwiftExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04FD3CC62C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExample" */;
+			buildPhases = (
+				04FD3C982C759E0B0035D186 /* Sources */,
+				04FD3C992C759E0B0035D186 /* Frameworks */,
+				04FD3C9A2C759E0B0035D186 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WebDavForSwiftExample;
+			packageProductDependencies = (
+				04FD3CDD2C759E7D0035D186 /* SWXMLHash */,
+			);
+			productName = WebDavForSwiftExample;
+			productReference = 04FD3C9C2C759E0B0035D186 /* WebDavForSwiftExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		04FD3CB12C759E0D0035D186 /* WebDavForSwiftExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04FD3CC92C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExampleTests" */;
+			buildPhases = (
+				04FD3CAE2C759E0D0035D186 /* Sources */,
+				04FD3CAF2C759E0D0035D186 /* Frameworks */,
+				04FD3CB02C759E0D0035D186 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				04FD3CB42C759E0D0035D186 /* PBXTargetDependency */,
+			);
+			name = WebDavForSwiftExampleTests;
+			productName = WebDavForSwiftExampleTests;
+			productReference = 04FD3CB22C759E0D0035D186 /* WebDavForSwiftExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		04FD3CBB2C759E0D0035D186 /* WebDavForSwiftExampleUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04FD3CCC2C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExampleUITests" */;
+			buildPhases = (
+				04FD3CB82C759E0D0035D186 /* Sources */,
+				04FD3CB92C759E0D0035D186 /* Frameworks */,
+				04FD3CBA2C759E0D0035D186 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				04FD3CBE2C759E0D0035D186 /* PBXTargetDependency */,
+			);
+			name = WebDavForSwiftExampleUITests;
+			productName = WebDavForSwiftExampleUITests;
+			productReference = 04FD3CBC2C759E0D0035D186 /* WebDavForSwiftExampleUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		04FD3C942C759E0B0035D186 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					04FD3C9B2C759E0B0035D186 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					04FD3CB12C759E0D0035D186 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 04FD3C9B2C759E0B0035D186;
+					};
+					04FD3CBB2C759E0D0035D186 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 04FD3C9B2C759E0B0035D186;
+					};
+				};
+			};
+			buildConfigurationList = 04FD3C972C759E0B0035D186 /* Build configuration list for PBXProject "WebDavForSwiftExample" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 04FD3C932C759E0B0035D186;
+			packageReferences = (
+				04FD3CDC2C759E7D0035D186 /* XCRemoteSwiftPackageReference "SWXMLHash" */,
+			);
+			productRefGroup = 04FD3C9D2C759E0B0035D186 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				04FD3C9B2C759E0B0035D186 /* WebDavForSwiftExample */,
+				04FD3CB12C759E0D0035D186 /* WebDavForSwiftExampleTests */,
+				04FD3CBB2C759E0D0035D186 /* WebDavForSwiftExampleUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		04FD3C9A2C759E0B0035D186 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FD3CA92C759E0D0035D186 /* Assets.xcassets in Resources */,
+				04FD3CAC2C759E0D0035D186 /* Base in Resources */,
+				04FD3CA72C759E0B0035D186 /* Base in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CB02C759E0D0035D186 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CBA2C759E0D0035D186 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		04FD3C982C759E0B0035D186 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FD3CD92C759E5A0035D186 /* WebDAVError.swift in Sources */,
+				04FD3CD62C759E5A0035D186 /* HTTPMethod.swift in Sources */,
+				04FD3CD72C759E5A0035D186 /* WebDAV.swift in Sources */,
+				04FD3CDB2C759E5A0035D186 /* WebDAVFileManager.swift in Sources */,
+				04FD3CD82C759E5A0035D186 /* WebDAV+Image.swift in Sources */,
+				04FD3CDA2C759E5A0035D186 /* WebDAVFile.swift in Sources */,
+				04FD3CA42C759E0B0035D186 /* ViewController.swift in Sources */,
+				04FD3CA02C759E0B0035D186 /* AppDelegate.swift in Sources */,
+				04FD3CA22C759E0B0035D186 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CAE2C759E0D0035D186 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FD3CB72C759E0D0035D186 /* WebDavForSwiftExampleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04FD3CB82C759E0D0035D186 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FD3CC32C759E0D0035D186 /* WebDavForSwiftExampleUITestsLaunchTests.swift in Sources */,
+				04FD3CC12C759E0D0035D186 /* WebDavForSwiftExampleUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		04FD3CB42C759E0D0035D186 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04FD3C9B2C759E0B0035D186 /* WebDavForSwiftExample */;
+			targetProxy = 04FD3CB32C759E0D0035D186 /* PBXContainerItemProxy */;
+		};
+		04FD3CBE2C759E0D0035D186 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04FD3C9B2C759E0B0035D186 /* WebDavForSwiftExample */;
+			targetProxy = 04FD3CBD2C759E0D0035D186 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		04FD3CA52C759E0B0035D186 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				04FD3CA62C759E0B0035D186 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		04FD3CAA2C759E0D0035D186 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				04FD3CAB2C759E0D0035D186 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		04FD3CC42C759E0D0035D186 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		04FD3CC52C759E0D0035D186 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		04FD3CC72C759E0D0035D186 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WebDavForSwiftExample/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		04FD3CC82C759E0D0035D186 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WebDavForSwiftExample/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		04FD3CCA2C759E0D0035D186 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WebDavForSwiftExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WebDavForSwiftExample";
+			};
+			name = Debug;
+		};
+		04FD3CCB2C759E0D0035D186 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WebDavForSwiftExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WebDavForSwiftExample";
+			};
+			name = Release;
+		};
+		04FD3CCD2C759E0D0035D186 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExampleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = WebDavForSwiftExample;
+			};
+			name = Debug;
+		};
+		04FD3CCE2C759E0D0035D186 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V56QRGRR5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.webdav.fjs.WebDavForSwiftExampleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = WebDavForSwiftExample;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		04FD3C972C759E0B0035D186 /* Build configuration list for PBXProject "WebDavForSwiftExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04FD3CC42C759E0D0035D186 /* Debug */,
+				04FD3CC52C759E0D0035D186 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		04FD3CC62C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04FD3CC72C759E0D0035D186 /* Debug */,
+				04FD3CC82C759E0D0035D186 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		04FD3CC92C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04FD3CCA2C759E0D0035D186 /* Debug */,
+				04FD3CCB2C759E0D0035D186 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		04FD3CCC2C759E0D0035D186 /* Build configuration list for PBXNativeTarget "WebDavForSwiftExampleUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04FD3CCD2C759E0D0035D186 /* Debug */,
+				04FD3CCE2C759E0D0035D186 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04FD3CDC2C759E7D0035D186 /* XCRemoteSwiftPackageReference "SWXMLHash" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/drmohundro/SWXMLHash.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		04FD3CDD2C759E7D0035D186 /* SWXMLHash */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04FD3CDC2C759E7D0035D186 /* XCRemoteSwiftPackageReference "SWXMLHash" */;
+			productName = SWXMLHash;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 04FD3C942C759E0B0035D186 /* Project object */;
+}
