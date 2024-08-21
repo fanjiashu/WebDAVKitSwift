@@ -13,7 +13,7 @@ public class WebDAV {
     private var auth: String
     
     // 初始化 WebDAV 对象
-    init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {
+    public  init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {
         // 确保 baseURL 有协议前缀
         let processedBaseURL: String
         if baseURL.hasPrefix("http://") || baseURL.hasPrefix("https://") {
