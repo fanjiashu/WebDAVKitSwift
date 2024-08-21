@@ -18,12 +18,15 @@ let package = Package(
     targets: [
         .target(
             name: "WebDavKit",
-            dependencies: [],
-            path: "Sources"),
+            dependencies: ["SWXMLHash"],
+            path: "Sources"
+        ),
         .testTarget(
             name: "WebDavKitTests",
             dependencies: ["WebDavKit"],
-            path: "Tests"),
+            path: "Tests"
+        ),
     ]
 )
+
 
