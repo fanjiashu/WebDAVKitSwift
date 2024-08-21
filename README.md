@@ -94,7 +94,4 @@ import DAVKitSwift
 ## 许可证
 此包根据 [Apache License 2.0](LICENSE) 发布。详情请参阅 LICENSE 文件。
 
----
-
-请确保替换 `... (Provide specific examples of how to use the package)` 部分提供具体的使用示例，并根据需要调整其他部分。在 `LICENSE` 文件中包含 Apache License 2.0 的完整文本。
 
