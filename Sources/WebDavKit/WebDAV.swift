@@ -12,7 +12,10 @@ public class WebDAV {
     var baseURL: URL
     private var auth: String?
     private var headerFields: [String: String]?
-    public var cookie: String? // 新增的 cookie 属性
+    /// 新增的 cookie 属性
+    public var cookie: String?
+    /// 默认超时时间设置为30秒
+    public var timeoutInterval: TimeInterval = 30
     
     // 始化 WebDAV 对象，支持用户名密码认证
     public init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {
@@ -55,46 +58,11 @@ public class WebDAV {
         self.auth = authData?.base64EncodedString() ?? ""
     }
     
-    // 新增的初始化方法，支持通过Cookie进行认证
-//    public init(baseURL: String, port: Int, cookie: String, path: String? = nil) {
-//        let processedBaseURL: String
-//        if baseURL.hasPrefix("http://") || baseURL.hasPrefix("https://") {
-//            processedBaseURL = baseURL
-//        } else {
-//            processedBaseURL = "http://" + baseURL
-//        }
-//            
-//        guard let url = URL(string: processedBaseURL) else {
-//            fatalError("无效的 base URL")
-//        }
-//            
-//        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-//        urlComponents.port = (port != 80 && port != 443) ? port : nil
-//            
-//        if let path = path, !path.isEmpty {
-//            let trimmedPath = path.hasPrefix("/") ? path : "/\(path)"
-//            urlComponents.path = trimmedPath
-//        } else {
-//            urlComponents.path = ""
-//        }
-//            
-//        let fullURLString = urlComponents.string ?? processedBaseURL
-//        guard let finalURL = URL(string: fullURLString) else {
-//            fatalError("无效的 URL")
-//        }
-//            
-//        self.baseURL = finalURL
-//        
-//        // 设置 headerFields，用于 Cookie 认证
-//        self.headerFields = ["Cookie": cookie]
-//        
-//        self.cookie = cookie
-//    }
-    
+    // 新增cookie 初始化
     public init(baseURL: String, port: Int, cookie: String, path: String? = nil) {
         // 处理 baseURL
         var processedBaseURL = baseURL
-        if !baseURL.hasPrefix("http://") && !baseURL.hasPrefix("https://") {
+        if !baseURL.hasPrefix("http://"), !baseURL.hasPrefix("https://") {
             processedBaseURL = "http://" + baseURL
         }
         
@@ -106,7 +74,7 @@ public class WebDAV {
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         
         // 处理端口
-        if (port != 80 && port != 443) {
+        if port != 80, port != 443 {
             urlComponents.port = port
         } else {
             urlComponents.port = nil // 移除默认端口设置
@@ -134,7 +102,6 @@ public class WebDAV {
         self.cookie = cookie
     }
 
-    
     // 静态方法：对文件进行排序
     public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
         var files = files
@@ -218,7 +185,7 @@ public extension WebDAV {
             print("Received XML  多少个文件: \(files.count)")
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
             print("测试WebDAV的打印:排序后 文件多少个：\(sortFiles.count)")
-            for item in sortFiles{
+            for item in sortFiles {
                 print(item.name)
             }
             return sortFiles
@@ -405,8 +372,10 @@ public extension WebDAV {
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
         let url = self.baseURL.appendingPathComponent(path)
         var request = URLRequest(url: url)
+        // 设置请求方式
         request.httpMethod = method.rawValue
-         
+        // 设置超时时间
+        request.timeoutInterval = self.timeoutInterval
         // 设置认证头部
         if let auth = self.auth {
             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")

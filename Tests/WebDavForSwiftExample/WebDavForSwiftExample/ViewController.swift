@@ -25,6 +25,7 @@ class ViewController: UIViewController {
 
         Task {
             do {
+                print("开始连接")
                 let webDAVTitle = "测试WebDAV的打印"
 
                 // 检查连接状态
