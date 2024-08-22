@@ -217,7 +217,10 @@ public extension WebDAV {
             }
             print("Received XML  多少个文件: \(files.count)")
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
-            print("排序后 文件多少个：\(sortFiles.count)")
+            print("测试WebDAV的打印:排序后 文件多少个：\(sortFiles.count)")
+            for item in sortFiles{
+                print(item.name)
+            }
             return sortFiles
         } catch {
             throw WebDAVError.nsError(error)

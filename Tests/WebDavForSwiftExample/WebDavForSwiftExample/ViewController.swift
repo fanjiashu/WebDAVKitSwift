@@ -67,7 +67,7 @@ class ViewController: UIViewController {
                 print("\(webDAVTitle) File copy status: \(fileCopied)")
 
                 // 移动文件
-                let fileMoved = try await fileManager.moveFile(fromPath: "/testFolder/sample_copy.txt", toPath: "/testFolder/sample_moved.txt")
+                let fileMoved = try await fileManager.moveFile(fromPath: "/testFolder/sample_copy.txt", toPath: "/testFolder/sample_moved2.txt")
                 print("\(webDAVTitle) File move status: \(fileMoved)")
 
 //                // 删除文件
