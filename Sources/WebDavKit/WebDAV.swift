@@ -56,40 +56,84 @@ public class WebDAV {
     }
     
     // 新增的初始化方法，支持通过Cookie进行认证
+//    public init(baseURL: String, port: Int, cookie: String, path: String? = nil) {
+//        let processedBaseURL: String
+//        if baseURL.hasPrefix("http://") || baseURL.hasPrefix("https://") {
+//            processedBaseURL = baseURL
+//        } else {
+//            processedBaseURL = "http://" + baseURL
+//        }
+//            
+//        guard let url = URL(string: processedBaseURL) else {
+//            fatalError("无效的 base URL")
+//        }
+//            
+//        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+//        urlComponents.port = (port != 80 && port != 443) ? port : nil
+//            
+//        if let path = path, !path.isEmpty {
+//            let trimmedPath = path.hasPrefix("/") ? path : "/\(path)"
+//            urlComponents.path = trimmedPath
+//        } else {
+//            urlComponents.path = ""
+//        }
+//            
+//        let fullURLString = urlComponents.string ?? processedBaseURL
+//        guard let finalURL = URL(string: fullURLString) else {
+//            fatalError("无效的 URL")
+//        }
+//            
+//        self.baseURL = finalURL
+//        
+//        // 设置 headerFields，用于 Cookie 认证
+//        self.headerFields = ["Cookie": cookie]
+//        
+//        self.cookie = cookie
+//    }
+    
     public init(baseURL: String, port: Int, cookie: String, path: String? = nil) {
-        let processedBaseURL: String
-        if baseURL.hasPrefix("http://") || baseURL.hasPrefix("https://") {
-            processedBaseURL = baseURL
-        } else {
+        // 处理 baseURL
+        var processedBaseURL = baseURL
+        if !baseURL.hasPrefix("http://") && !baseURL.hasPrefix("https://") {
             processedBaseURL = "http://" + baseURL
         }
-            
+        
         guard let url = URL(string: processedBaseURL) else {
             fatalError("无效的 base URL")
         }
-            
+        
+        // 配置 URL 组件
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        urlComponents.port = (port != 80 && port != 443) ? port : nil
-            
-        if let path = path, !path.isEmpty {
-            let trimmedPath = path.hasPrefix("/") ? path : "/\(path)"
-            urlComponents.path = trimmedPath
+        
+        // 处理端口
+        if (port != 80 && port != 443) {
+            urlComponents.port = port
         } else {
-            urlComponents.path = ""
+            urlComponents.port = nil // 移除默认端口设置
         }
-            
-        let fullURLString = urlComponents.string ?? processedBaseURL
-        guard let finalURL = URL(string: fullURLString) else {
+        
+        // 处理路径
+        if let path = path, !path.isEmpty {
+            // 确保路径以 '/' 开头，不会影响原始的 baseURL
+            if !path.hasPrefix("/") {
+                urlComponents.path += "/" + path
+            } else {
+                urlComponents.path += path
+            }
+        }
+        
+        // 构造最终 URL
+        guard let finalURL = urlComponents.url else {
             fatalError("无效的 URL")
         }
-            
+        
         self.baseURL = finalURL
         
         // 设置 headerFields，用于 Cookie 认证
         self.headerFields = ["Cookie": cookie]
-        
         self.cookie = cookie
     }
+
     
     // 静态方法：对文件进行排序
     public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
