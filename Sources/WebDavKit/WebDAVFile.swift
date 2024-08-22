@@ -1,4 +1,3 @@
-
 //
 //  WebDAVFile.swift
 //  hclient3
@@ -30,10 +29,10 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         self.auth = auth
         self.cookie = cookie
     }
-    
+
     init?(xml: XMLIndexer, baseURL: URL, auth: String? = nil, cookie: String? = nil) {
         print("Received XML: \(String(describing: xml.element))")
-        
+
         guard let hrefElement = xml["href"].element else {
             print("Failed to get href")
             return nil
@@ -41,24 +40,36 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         let href = hrefElement.text.removingPercentEncoding ?? ""
         print("Href: \(href)")
 
-        guard let dateString = xml["propstat"]["prop"]["getlastmodified"].element?.text else {
+        // 解析 getlastmodified 时间
+        var date: Date? = nil
+        for propstat in xml["propstat"].all {
+            if let dateString = propstat["prop"]["getlastmodified"].element?.text {
+                print("Date String: \(dateString)")
+                date = WebDAVFile.rfc1123Formatter.date(from: dateString)
+                if date != nil {
+                    print("Parsed Date: \(date!)")
+                    break
+                }
+            }
+        }
+        guard let validDate = date else {
             print("Failed to get getlastmodified")
             return nil
         }
-        print("Date String: \(dateString)")
-        guard let date = WebDAVFile.rfc1123Formatter.date(from: dateString) else {
-            print("Failed to parse date")
-            return nil
-        }
-        print("Parsed Date: \(date)")
 
         let isDirectory = xml["propstat"]["prop"]["resourcetype"]["collection"].element != nil
         print("Is Directory: \(isDirectory)")
-        
-        let sizeString = xml["propstat"]["prop"]["getcontentlength"].element?.text
-        print("Size String: \(sizeString ?? "nil")")
-        let size: Int64 = Int64(sizeString ?? "0") ?? 0
-        print("Size: \(size)")
+
+        // 解析文件大小
+        var size: Int64 = 0
+        for propstat in xml["propstat"].all {
+            if let sizeString = propstat["prop"]["getcontentlength"].element?.text {
+                print("Size String: \(sizeString)")
+                size = Int64(sizeString) ?? 0
+                print("Size: \(size)")
+                break
+            }
+        }
 
         var path = href.replacingOccurrences(of: baseURL.absoluteString, with: "")
         if path.first == "/" {
@@ -67,8 +78,17 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         print("Path: \(path)")
 
         let url = baseURL.appendingPathComponent(path)
-        
-        self.init(path: path, id: UUID().uuidString, isDirectory: isDirectory, lastModified: date, size: size, url: url, auth: auth, cookie: cookie)
+
+        self.path = path
+        self.id = UUID().uuidString
+        self.isDirectory = isDirectory
+        self.lastModified = validDate
+        self.size = size
+        self.url = url
+        self.auth = auth
+        self.cookie = cookie
+
+        print("Parsed WebDAVFile: \(self)")
     }
 
     static let rfc1123Formatter: DateFormatter = {

@@ -216,7 +216,9 @@ public extension WebDAV {
                 )
             }
             print("Received XML  多少个文件: \(files.count)")
-            return WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
+            let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
+            print("排序后 文件多少个：\(sortFiles.count)")
+            return sortFiles
         } catch {
             throw WebDAVError.nsError(error)
         }
@@ -405,13 +407,13 @@ public extension WebDAV {
         // 设置认证头部
         if let auth = self.auth {
             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-            if method == .propfind {
-                request.setValue("1", forHTTPHeaderField: "Depth")
-            }
         } else if let headerFields = self.headerFields {
             for (key, value) in headerFields {
                 request.setValue(value, forHTTPHeaderField: key)
             }
+        }
+        if method == .propfind {
+            request.setValue("1", forHTTPHeaderField: "Depth")
         }
         return request
     }

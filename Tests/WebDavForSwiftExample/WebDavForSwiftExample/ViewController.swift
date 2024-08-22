@@ -16,7 +16,11 @@ class ViewController: UIViewController {
     }
     private func testWebDAVFunctions() {
         // 配置 WebDAV
-        let webDAV = WebDAV(baseURL: "http://192.168.100.148:8080/", port: 8080, username: "fjs", password: "123")
+        // let webDAV = WebDAV(baseURL: "http://192.168.100.148:8080/", port: 8080, username: "fjs", password: "123")
+        
+        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=7eb3a9f5-0a0b-4c6e-a3f6-614450f11ae7")
+        print("Base URL: \(webDAV.baseURL)")
+
         let fileManager = WebDAVFileManager(webDAV: webDAV)
 
         Task {
@@ -66,13 +70,13 @@ class ViewController: UIViewController {
                 let fileMoved = try await fileManager.moveFile(fromPath: "/testFolder/sample_copy.txt", toPath: "/testFolder/sample_moved.txt")
                 print("\(webDAVTitle) File move status: \(fileMoved)")
 
-                // 删除文件
-                let fileDeleted = try await fileManager.deleteFile(atPath: "/testFolder/sample_moved.txt")
-                print("\(webDAVTitle) File delete status: \(fileDeleted)")
-
-                // 删除文件夹
-                let folderDeleted = try await fileManager.deleteFile(atPath: "/testFolder")
-                print("\(webDAVTitle) Folder delete status: \(folderDeleted)")
+//                // 删除文件
+//                let fileDeleted = try await fileManager.deleteFile(atPath: "/testFolder/sample_moved.txt")
+//                print("\(webDAVTitle) File delete status: \(fileDeleted)")
+//
+//                // 删除文件夹
+//                let folderDeleted = try await fileManager.deleteFile(atPath: "/testFolder")
+//                print("\(webDAVTitle) Folder delete status: \(folderDeleted)")
 
             } catch {
                 let webDAVTitle = "测试WebDAV的打印:函数执行Catch报错"
