@@ -361,16 +361,14 @@ public extension WebDAV {
         // 设置认证头部
         if let auth = self.auth {
             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+            if method == .propfind {
+                request.setValue("1", forHTTPHeaderField: "Depth")
+            }
         } else if let headerFields = self.headerFields {
             for (key, value) in headerFields {
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
-
-        if method == .propfind {
-            request.setValue("1", forHTTPHeaderField: "Depth")
-        }
-         
         return request
     }
 }
