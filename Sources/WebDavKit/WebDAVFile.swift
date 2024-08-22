@@ -9,30 +9,19 @@ import Foundation
 import SWXMLHash
 
 public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
-
     public private(set) var path: String
     public private(set) var id: String
     public private(set) var isDirectory: Bool
     public private(set) var lastModified: Date
     public private(set) var size: Int64
     public private(set) var url: URL
-    public private(set) var auth: String?  // 基本认证信息
-    public private(set) var cookie: String?  // Cookie 认证信息
-
-    init(path: String, id: String, isDirectory: Bool, lastModified: Date, size: Int64, url: URL, auth: String? = nil, cookie: String? = nil) {
-        self.path = path
-        self.id = id
-        self.isDirectory = isDirectory
-        self.lastModified = lastModified
-        self.size = size
-        self.url = url
-        self.auth = auth
-        self.cookie = cookie
-    }
+    public private(set) var auth: String?
+    public private(set) var cookie: String?
 
     init?(xml: XMLIndexer, baseURL: URL, auth: String? = nil, cookie: String? = nil) {
         print("Received XML: \(String(describing: xml.element))")
 
+        // 处理 href 元素
         guard let hrefElement = xml["href"].element else {
             print("Failed to get href")
             return nil
@@ -52,12 +41,32 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
                 }
             }
         }
+        // 处理没有 getlastmodified 的情况
+        if date == nil {
+            for propstat in xml["propstat"].all {
+                if let dateString = propstat["prop"]["getlastmodified"].element?.text {
+                    print("Date String (fallback): \(dateString)")
+                    date = WebDAVFile.rfc1123Formatter.date(from: dateString)
+                    if date != nil {
+                        print("Parsed Date (fallback): \(date!)")
+                        break
+                    }
+                }
+            }
+        }
+
         guard let validDate = date else {
             print("Failed to get getlastmodified")
             return nil
         }
 
-        let isDirectory = xml["propstat"]["prop"]["resourcetype"]["collection"].element != nil
+        // 解析是否为目录
+        let isDirectory: Bool
+        if let collectionElement = xml["propstat"]["prop"]["resourcetype"]["collection"].element {
+            isDirectory = collectionElement.text.isEmpty
+        } else {
+            isDirectory = xml["propstat"]["prop"]["resourcetype"]["collection"].element != nil
+        }
         print("Is Directory: \(isDirectory)")
 
         // 解析文件大小
@@ -71,6 +80,7 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
             }
         }
 
+        // 处理路径
         var path = href.replacingOccurrences(of: baseURL.absoluteString, with: "")
         if path.first == "/" {
             path.removeFirst()
@@ -115,4 +125,3 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         isDirectory ? fileName : fileURL.deletingPathExtension().lastPathComponent
     }
 }
-
