@@ -121,7 +121,7 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
     ///   - isDirectory: 指示是否为目录。
     ///   - auth: 用于访问控制的认证信息。
     ///   - cookie: 用于会话管理的 cookie。
-    init?(path: String, lastModified: Date? = nil, size: Int64 = 0, isDirectory: Bool = false, auth: String? = nil, cookie: String? = nil) {
+  public init?(path: String, lastModified: Date? = nil, size: Int64 = 0, isDirectory: Bool = false, auth: String? = nil, cookie: String? = nil) {
         // 确保路径是有效的
         guard !path.isEmpty else { return nil }
         
