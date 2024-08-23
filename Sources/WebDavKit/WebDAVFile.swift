@@ -109,6 +109,46 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
 
         print("Parsed WebDAVFile: \(self)")
     }
+    
+    
+    
+    
+    /// 新的初始化器，允许使用文件路径、修改日期、大小和其他属性创建 WebDAVFile 实例。
+    /// - Parameters:
+    ///   - path: 文件系统上的文件路径。
+    ///   - lastModified: 文件最后修改日期。
+    ///   - size: 文件大小。
+    ///   - isDirectory: 指示是否为目录。
+    ///   - auth: 用于访问控制的认证信息。
+    ///   - cookie: 用于会话管理的 cookie。
+    init?(path: String, lastModified: Date? = nil, size: Int64 = 0, isDirectory: Bool = false, auth: String? = nil, cookie: String? = nil) {
+        // 确保路径是有效的
+        guard !path.isEmpty else { return nil }
+        
+        // 如果提供了 lastModified，则使用它；否则使用当前日期和时间。
+        let modifiedDate = lastModified ?? Date()
+        
+        // 根据路径创建 URL
+        let fileURL = URL(fileURLWithPath: path)
+        
+        // 根据路径创建一个唯一的 ID
+        let id = isDirectory ? fileURL.lastPathComponent : fileURL.absoluteString
+        
+        self.path = path
+        self.id = id
+        self.isDirectory = isDirectory
+        self.lastModified = modifiedDate
+        self.size = size
+        self.url = fileURL
+        self.auth = auth
+        self.cookie = cookie
+    }
+    
+    
+    
+    
+    
+    
 
     static let rfc1123Formatter: DateFormatter = {
         let formatter = DateFormatter()
