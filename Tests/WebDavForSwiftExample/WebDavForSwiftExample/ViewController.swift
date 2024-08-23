@@ -31,45 +31,51 @@ class ViewController: UIViewController {
                 // 检查连接状态
                 let isConnected = try await fileManager.checkLinkStatus()
                 print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
-
-                // 创建文件夹
-                let folderCreated = try await fileManager.createFolder(atPath: "/testFolder")
-                print("\(webDAVTitle) Folder creation status: \(folderCreated)")
-
-                // 上传文件
-                let sampleData = "Sample file content".data(using: .utf8)!
-                let fileUploaded = try await fileManager.uploadFile(atPath: "/testFolder/sample.txt", data: sampleData)
-                print("\(webDAVTitle) File upload status: \(fileUploaded)")
-
-                // 列出文件，确认文件存在
-                let files = try await fileManager.listFiles(atPath: "/testFolder")
-                print("\(webDAVTitle) Files in folder: \(files)")
-
-                // 确认文件存在
-                if files.contains(where: { $0.fileName == "sample.txt" }) {
-                    // 下载测试并进行分享
-                    let downloadTestData = try await fileManager.downloadFile(atPath: "/testFolder/sample.txt")
-                    let downloadTestFileName = "sample.txt"
-
-                    // 保存下载文件到临时目录
-                    let tempDirectory = FileManager.default.temporaryDirectory
-                    let tempFileURL = tempDirectory.appendingPathComponent(downloadTestFileName)
-                    try downloadTestData.write(to: tempFileURL)
-
-                    // 系统分享下载的内容
-                    let activityViewController = UIActivityViewController(activityItems: [tempFileURL], applicationActivities: nil)
-                    self.present(activityViewController, animated: true, completion: nil)
-                } else {
-                    print("\(webDAVTitle) File does not exist for download.")
+                
+                let files = try await fileManager.listFiles(atPath: "/")
+                for (index, file) in files.enumerated() {
+                    print("第\(index)文件是：\(file)")
                 }
+                
 
-                // 复制文件
-                let fileCopied = try await fileManager.copyFile(fromPath: "/testFolder/sample.txt", toPath: "/testFolder/sample_copy.txt")
-                print("\(webDAVTitle) File copy status: \(fileCopied)")
+//                // 创建文件夹
+//                let folderCreated = try await fileManager.createFolder(atPath: "/testFolder")
+//                print("\(webDAVTitle) Folder creation status: \(folderCreated)")
+//
+//                // 上传文件
+//                let sampleData = "Sample file content".data(using: .utf8)!
+//                let fileUploaded = try await fileManager.uploadFile(atPath: "/testFolder/sample.txt", data: sampleData)
+//                print("\(webDAVTitle) File upload status: \(fileUploaded)")
 
-                // 移动文件
-                let fileMoved = try await fileManager.moveFile(fromPath: "/testFolder/sample_copy.txt", toPath: "/testFolder/sample_moved2.txt")
-                print("\(webDAVTitle) File move status: \(fileMoved)")
+//                // 列出文件，确认文件存在
+//                let files = try await fileManager.listFiles(atPath: "/testFolder")
+//                print("\(webDAVTitle) Files in folder: \(files)")
+
+//                // 确认文件存在
+//                if files.contains(where: { $0.fileName == "sample.txt" }) {
+//                    // 下载测试并进行分享
+//                    let downloadTestData = try await fileManager.downloadFile(atPath: "/testFolder/sample.txt")
+//                    let downloadTestFileName = "sample.txt"
+//
+//                    // 保存下载文件到临时目录
+//                    let tempDirectory = FileManager.default.temporaryDirectory
+//                    let tempFileURL = tempDirectory.appendingPathComponent(downloadTestFileName)
+//                    try downloadTestData.write(to: tempFileURL)
+//
+//                    // 系统分享下载的内容
+//                    let activityViewController = UIActivityViewController(activityItems: [tempFileURL], applicationActivities: nil)
+//                    self.present(activityViewController, animated: true, completion: nil)
+//                } else {
+//                    print("\(webDAVTitle) File does not exist for download.")
+//                }
+//
+//                // 复制文件
+//                let fileCopied = try await fileManager.copyFile(fromPath: "/testFolder/sample.txt", toPath: "/testFolder/sample_copy.txt")
+//                print("\(webDAVTitle) File copy status: \(fileCopied)")
+//
+//                // 移动文件
+//                let fileMoved = try await fileManager.moveFile(fromPath: "/testFolder/sample_copy.txt", toPath: "/testFolder/sample_moved2.txt")
+//                print("\(webDAVTitle) File move status: \(fileMoved)")
 
 //                // 删除文件
 //                let fileDeleted = try await fileManager.deleteFile(atPath: "/testFolder/sample_moved.txt")

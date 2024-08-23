@@ -81,13 +81,22 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         }
 
         // 处理路径
-        var path = href.replacingOccurrences(of: baseURL.absoluteString, with: "")
+        // 处理路径
+        var path = href
+
+        // 替换掉 URL 中的 scheme 和 host 部分，而保留路径部分
+        let basePath = baseURL.path
+        if path.hasPrefix(basePath) {
+            path = String(path.dropFirst(basePath.count))
+        }
+        // 移除路径前面的斜杠，如果有的话
         if path.first == "/" {
             path.removeFirst()
         }
-        print("Path: \(path)")
+        print("Final Path: \(path)")
 
-        let url = baseURL.appendingPathComponent(path)
+        // 创建文件的 URL
+        let url = baseURL.deletingLastPathComponent().appendingPathComponent(path)
 
         self.path = path
         self.id = UUID().uuidString
