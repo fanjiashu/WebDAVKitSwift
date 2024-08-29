@@ -240,12 +240,13 @@ public extension WebDAV {
     /// - Returns: 是否移动或重命名成功
     /// - Throws: WebDAVError
     func moveFile(fromPath: String, toPath: String) async throws -> Bool {
+    
+        // 先分别检查目标文件和源文件的存在性
+        let destinationExists = try await fileExists(at: toPath)
+        let sourceExists = try await fileExists(at: fromPath)
+
         let fromURL = self.baseURL.appendingPathComponent(fromPath)
         let toURL = self.baseURL.appendingPathComponent(toPath)
-
-        // 先分别检查目标文件和源文件的存在性
-        let destinationExists = try await fileExists(at: toURL)
-        let sourceExists = try await fileExists(at: fromURL)
 
         // 如果目标文件已经存在并且源文件不存在，直接返回成功
         if destinationExists && !sourceExists {
@@ -292,8 +293,9 @@ public extension WebDAV {
     /// 使用 PROPFIND 请求检查远程 WebDAV 服务器上的文件是否存在
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
-    private func fileExists(at url: URL) async throws -> Bool {
-        guard var request = authorizedRequest(path: url.path, method: .propfind) else {
+    func fileExists(at path: String) async throws -> Bool {
+        let url = self.baseURL.appendingPathComponent(path)
+        guard var request =  authorizedRequest(path: url.path, method: .propfind) else {
             throw WebDAVError.invalidCredentials
         }
 
