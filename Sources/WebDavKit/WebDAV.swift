@@ -294,13 +294,11 @@ public extension WebDAV {
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
     func fileExists(at path: String) async throws -> Bool {
+
         let url = self.baseURL.appendingPathComponent(path)
-        guard var request =  authorizedRequest(path: url.path, method: .propfind) else {
+        guard let request = authorizedRequest(path: url.path, method: .head) else {
             throw WebDAVError.invalidCredentials
         }
-
-        // 设置 PROPFIND 请求的深度为 0，仅查询目标资源本身
-        request.addValue("0", forHTTPHeaderField: "Depth")
 
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
@@ -308,8 +306,8 @@ public extension WebDAV {
                 return false
             }
 
-            // 如果状态码为 207（Multi-Status），则文件存在
-            return httpResponse.statusCode == 207
+            // 如果状态码为 200（OK），则文件存在
+            return httpResponse.statusCode == 200
         } catch {
             return false
         }

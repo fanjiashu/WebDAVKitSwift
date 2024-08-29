@@ -13,4 +13,5 @@ public enum HTTPMethod: String {
     case mkcol = "MKCOL"
     case move = "MOVE"
     case copy = "COPY"
+    case head = "HEAD"
 }

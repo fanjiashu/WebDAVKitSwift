@@ -37,6 +37,10 @@ class ViewController: UIViewController {
                     print("第\(index)文件是：\(file)")
                 }
                 
+                let status = try await webDAV.fileExists(at: "/德德.jpeg")
+                print("文件存在 \(status)")
+                
+                
 
 //                // 创建文件夹
 //                let folderCreated = try await fileManager.createFolder(atPath: "/testFolder")
