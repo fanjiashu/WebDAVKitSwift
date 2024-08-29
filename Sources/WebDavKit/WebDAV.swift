@@ -187,6 +187,7 @@ public extension WebDAV {
             print("测试WebDAV的打印:排序后 文件多少个：\(sortFiles.count)")
             for item in sortFiles {
                 print(item.name)
+                print(item.path)
             }
             return sortFiles
         } catch {
@@ -239,39 +240,76 @@ public extension WebDAV {
     /// - Returns: 是否移动或重命名成功
     /// - Throws: WebDAVError
     func moveFile(fromPath: String, toPath: String) async throws -> Bool {
+        let fromURL = self.baseURL.appendingPathComponent(fromPath)
+        let toURL = self.baseURL.appendingPathComponent(toPath)
+
+        // 先分别检查目标文件和源文件的存在性
+        let destinationExists = try await fileExists(at: toURL)
+        let sourceExists = try await fileExists(at: fromURL)
+
+        // 如果目标文件已经存在并且源文件不存在，直接返回成功
+        if destinationExists && !sourceExists {
+            print("Old file does not exist and new file already exists. Returning success.")
+            return true
+        }
+
         guard var request = authorizedRequest(path: fromPath, method: .move) else {
             throw WebDAVError.invalidCredentials
         }
 
         // 确保 Destination 头部的值是相对路径
-        let destinationURL = self.baseURL.appendingPathComponent(toPath).absoluteString
+        let destinationURL = toURL.absoluteString
         request.addValue(destinationURL, forHTTPHeaderField: "Destination")
-         
+
         print("Attempting to move file from \(fromPath) to \(destinationURL)")
         print("Request URL: \(request.url?.absoluteString ?? "Unknown")")
         print("Request Method: \(request.httpMethod ?? "Unknown")")
         print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
-         
+
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
             }
-             
+
             // 输出响应状态码
             print("Response status code: \(httpResponse.statusCode)")
-             
+
             // 输出响应数据（如果需要）
             if let data = try? Data(contentsOf: httpResponse.url!) {
                 let responseData = String(data: data, encoding: .utf8) ?? "No response data"
                 print("Response data: \(responseData)")
             }
-             
+
             // 检查状态码
             return 200...299 ~= httpResponse.statusCode
         } catch {
             print("Request failed with error: \(error)")
             throw WebDAVError.nsError(error)
+        }
+    }
+    
+    /// 使用 PROPFIND 请求检查远程 WebDAV 服务器上的文件是否存在
+    /// - Parameter url: 文件的 URL
+    /// - Returns: 文件是否存在
+    private func fileExists(at url: URL) async throws -> Bool {
+        guard var request = authorizedRequest(path: url.path, method: .propfind) else {
+            throw WebDAVError.invalidCredentials
+        }
+
+        // 设置 PROPFIND 请求的深度为 0，仅查询目标资源本身
+        request.addValue("0", forHTTPHeaderField: "Depth")
+
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return false
+            }
+
+            // 如果状态码为 207（Multi-Status），则文件存在
+            return httpResponse.statusCode == 207
+        } catch {
+            return false
         }
     }
     
