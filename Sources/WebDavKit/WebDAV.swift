@@ -290,7 +290,7 @@ public extension WebDAV {
         }
     }
     
-    /// 使用 PROPFIND 请求检查远程 WebDAV 服务器上的文件是否存在
+    /// 使用 Head 请求检查远程 WebDAV 服务器上的文件是否存在
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
     func fileExists(at path: String) async throws -> Bool {
@@ -312,6 +312,60 @@ public extension WebDAV {
             return false
         }
     }
+    
+    
+    /// 检查远程 WebDAV 服务器上的路径是否是文件夹
+    /// - Parameter path: 路径的字符串
+    /// - Returns: 是否是文件夹
+    func isDirectory(atPath path: String) async throws -> Bool {
+        guard var request = authorizedRequest(path: path, method: .propfind) else {
+            throw WebDAVError.invalidCredentials
+        }
+
+        // 设置 PROPFIND 请求的 body
+        let body =
+            """
+            <?xml version="1.0" encoding="utf-8" ?>
+            <D:propfind xmlns:D="DAV:">
+                <D:prop>
+                    <D:resourcetype/>
+                </D:prop>
+            </D:propfind>
+            """
+        request.httpBody = body.data(using: .utf8)
+        request.setValue("0", forHTTPHeaderField: "Depth") // 只检查当前资源
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse,
+                  200...299 ~= response.statusCode
+            else {
+                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+            }
+
+            // 打印原始 XML 响应
+            if let xmlString = String(data: data, encoding: .utf8) {
+                print("Received XML: \(xmlString)")
+            }
+
+            let xml = XMLHash.parse(data)
+            
+            // 获取 resourcetype 节点并检查它是否包含 <D:collection/>
+            let resourceType = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:resourcetype"]
+
+            print("resourceType XML: \(resourceType)")
+            // 只有在 resourcetype 中包含 <D:collection> 才返回 true
+            let isDirectory = !resourceType.children.isEmpty && !resourceType["D:collection"].all.isEmpty
+            return isDirectory
+        } catch {
+            throw WebDAVError.nsError(error)
+        }
+    }
+
+
+
+    
+    
     
     /// 复制指定路径的文件
     /// - Parameters:

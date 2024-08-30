@@ -37,9 +37,11 @@ class ViewController: UIViewController {
                     print("第\(index)文件是：\(file)")
                 }
                 
-                let status = try await webDAV.fileExists(at: "/德德.jpeg")
+                let status = try await webDAV.fileExists(at: "/dedeshi.jpeg")
                 print("文件存在 \(status)")
                 
+                let fileStatus = try await webDAV.isDirectory(atPath: "/dedeshi.jpeg")
+                print("是否文件夹 \(fileStatus)")
                 
 
 //                // 创建文件夹
