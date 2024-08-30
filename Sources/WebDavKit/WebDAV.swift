@@ -103,15 +103,47 @@ public class WebDAV {
     }
 
     // 静态方法：对文件进行排序
+//    public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
+//        print("测试WebDAV的打印:排序前 文件多少个：\(files.count) :   \(files)")
+//        var files = files
+//        if !includeSelf, !files.isEmpty {
+//            files.removeFirst()
+//        }
+//        if foldersFirst {
+//            files = files.filter { $0.isDirectory } + files.filter { !$0.isDirectory }
+//        }
+//        files = files.filter { !$0.fileName.hasPrefix(".") }
+//        print("测试WebDAV的打印:排序后 文件多少个：\(files.count) :   \(files)")
+//        return files
+//    }
+    
     public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
+        print("排序:排序前，文件数量: \(files.count)，文件详情: \(files)")
+        
         var files = files
+        
+        // 检查是否需要移除第一个文件
         if !includeSelf, !files.isEmpty {
-            files.removeFirst()
+            // 优化：只有当有目录文件时才移除第一个文件
+            let hasDirectory = files.contains { $0.isDirectory }
+            if hasDirectory {
+                files.removeFirst()
+                print("移除第一个文件")
+            }
         }
+        
+        // 目录优先排序
         if foldersFirst {
-            files = files.filter { $0.isDirectory } + files.filter { !$0.isDirectory }
+            let directories = files.filter { $0.isDirectory }
+            let nonDirectories = files.filter { !$0.isDirectory }
+            files = directories + nonDirectories
+            print("排序:目录优先排序后，文件数量: \(files.count)")
         }
+
+        // 过滤隐藏文件
         files = files.filter { !$0.fileName.hasPrefix(".") }
+        print("排序:过滤隐藏文件后，文件数量: \(files.count)，文件详情: \(files)")
+        
         return files
     }
 }
@@ -182,9 +214,7 @@ public extension WebDAV {
                     cookie: self.cookie
                 )
             }
-            print("Received XML  多少个文件: \(files.count)")
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
-            print("测试WebDAV的打印:排序后 文件多少个：\(sortFiles.count)")
             for item in sortFiles {
                 print(item.name)
                 print(item.path)
