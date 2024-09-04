@@ -32,20 +32,20 @@ class ViewController: UIViewController {
                 let isConnected = try await fileManager.checkLinkStatus()
                 print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
                 
-                var files = try await fileManager.listFiles(atPath: "/HI.jpeg")
+                var files = try await fileManager.listFiles(atPath: "/Sourcetree.app")
+                for (index, file) in files.enumerated() {
+                    print("/Sourcetree.app 路径下：第\(index)文件是：\(file)")
+                }
+//                files = try await fileManager.listFiles(atPath: "/Test/Text")
 //                for (index, file) in files.enumerated() {
-//                    print("第\(index)文件是：\(file)")
-//                }
-                files = try await fileManager.listFiles(atPath: "/Test")
-//                for (index, file) in files.enumerated() {
-//                    print("第\(index)文件是：\(file)")
+//                    print("/Test/Text路径下：第\(index)文件是：\(file)")
 //                }
                 
-//                let status = try await webDAV.fileExists(at: "/dedeshi.jpeg")
-//                print("文件存在 \(status)")
+                let status = try await webDAV.fileExists(at: "/Sourcetree.app")
+                print("文件存在 \(status)")
 //                
-//                let fileStatus = try await webDAV.isDirectory(atPath: "/dedeshi.jpeg")
-//                print("是否文件夹 \(fileStatus)")
+                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
+                print("是否文件夹 \(fileStatus)")
                 
 
 //                // 创建文件夹
