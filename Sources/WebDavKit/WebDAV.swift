@@ -270,7 +270,6 @@ public extension WebDAV {
     /// - Returns: 是否移动或重命名成功
     /// - Throws: WebDAVError
     func moveFile(fromPath: String, toPath: String) async throws -> Bool {
-    
         // 先分别检查目标文件和源文件的存在性
         let destinationExists = try await fileExists(at: toPath)
         let sourceExists = try await fileExists(at: fromPath)
@@ -324,7 +323,6 @@ public extension WebDAV {
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
     func fileExists(at path: String) async throws -> Bool {
-
         let url = self.baseURL.appendingPathComponent(path)
         guard let request = authorizedRequest(path: url.path, method: .head) else {
             throw WebDAVError.invalidCredentials
@@ -342,7 +340,6 @@ public extension WebDAV {
             return false
         }
     }
-    
     
     /// 检查远程 WebDAV 服务器上的路径是否是文件夹
     /// - Parameter path: 路径的字符串
@@ -382,7 +379,10 @@ public extension WebDAV {
             
             // 获取 resourcetype 节点并检查它是否包含 <D:collection/>
             let resourceType = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:resourcetype"]
-
+            // 处理路径以 .app 结尾的情况，强制识别为文件，不在解析，以及解析会出错
+            if path.hasSuffix(".app") {
+                return false
+            }
             print("resourceType XML: \(resourceType)")
             // 只有在 resourcetype 中包含 <D:collection> 才返回 true
             let isDirectory = !resourceType.children.isEmpty && !resourceType["D:collection"].all.isEmpty
@@ -392,11 +392,6 @@ public extension WebDAV {
         }
     }
 
-
-
-    
-    
-    
     /// 复制指定路径的文件
     /// - Parameters:
     ///   - fromPath: 源文件路径

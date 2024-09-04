@@ -36,7 +36,7 @@ class ViewController: UIViewController {
 //                for (index, file) in files.enumerated() {
 //                    print("第\(index)文件是：\(file)")
 //                }
-                files = try await fileManager.listFiles(atPath: "/")
+                files = try await fileManager.listFiles(atPath: "/Test")
 //                for (index, file) in files.enumerated() {
 //                    print("第\(index)文件是：\(file)")
 //                }
