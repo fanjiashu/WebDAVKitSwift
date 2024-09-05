@@ -52,6 +52,7 @@ class ViewController: UIViewController {
                 let downloadTestData = try Data(contentsOf: url)
                     let downloadTestFileName = "Sourcetree.app"
                     print("下载到的资源：\(downloadTestData.count)")
+                    print("接收到的文件路径： \(url)")
                 
 //                    // 保存下载文件到临时目录
 //                    let tempDirectory = FileManager.default.temporaryDirectory

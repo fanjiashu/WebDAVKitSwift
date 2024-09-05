@@ -462,48 +462,61 @@ public extension WebDAV {
     /// - Returns: 文件数据
     /// - Throws: WebDAVError
     func downloadFile(atPath path: String) async throws -> URL {
-//        guard let request = authorizedRequest(path: path, method: .get) else {
-//            throw WebDAVError.invalidCredentials
-//        }
-//        do {
-//            let (data, response) = try await URLSession.shared.data(for: request)
-//            guard let response = response as? HTTPURLResponse,
-//                  200...299 ~= response.statusCode
-//            else {
-//                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
-//            }
-//            return data
-//        } catch {
-//            throw WebDAVError.nsError(error)
-//        }
-        
-        
-        guard let request = authorizedRequest(path: path, method: .get) else {
+        // 获取授权请求
+           guard let request = authorizedRequest(path: path, method: .get) else {
                throw WebDAVError.invalidCredentials
            }
-           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-           // 创建一个后台任务的 URLSession 配置（也可以使用默认配置）
+           
+           // 创建 URLSession 配置（可以选择后台任务配置）
            let configuration = URLSessionConfiguration.default
            let session = URLSession(configuration: configuration)
-
+           
            do {
-               // 通过 downloadTask 下载文件，文件会自动保存到一个临时位置
-               let (tempURL, response) = try await session.download(for: request)
+               // 使用 downloadTask 下载文件
+               let (tempDownloadURL, response) = try await session.download(for: request)
                
-               // 检查响应状态码
+               // 检查 HTTP 响应状态码
                guard let httpResponse = response as? HTTPURLResponse,
-                     200...299 ~= httpResponse.statusCode
-               else {
+                     200...299 ~= httpResponse.statusCode else {
                    throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
                }
                
-               // 返回下载的文件的临时 URL（位于沙盒的临时目录）
+               // 提取文件扩展名，首先从 path 中提取
+               let fileExtension = (path as NSString).pathExtension
+               var fileName = UUID().uuidString // 默认使用 UUID 作为文件名
+               
+               // 尝试从响应头中提取文件名（Content-Disposition）
+               if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
+                  let extractedFileName = extractFileName(from: contentDisposition) {
+                   fileName = extractedFileName
+               } else if !fileExtension.isEmpty {
+                   // 如果没有 Content-Disposition, 则使用原路径中的扩展名
+                   fileName += ".\(fileExtension)"
+               }
+               
+               // 将文件保存到临时目录，带有正确的文件格式
+               let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+               
+               // 将下载的文件移动到带有正确扩展名的临时文件路径
+               try FileManager.default.moveItem(at: tempDownloadURL, to: tempURL)
+               
                return tempURL
            } catch {
                throw WebDAVError.nsError(error)
            }
-        
     }
+}
+
+func extractFileName(from contentDisposition: String) -> String? {
+    let pattern = "filename=\"([^\"]+)\""
+    let regex = try? NSRegularExpression(pattern: pattern, options: [])
+    let nsString = contentDisposition as NSString
+    let results = regex?.firstMatch(in: contentDisposition, options: [], range: NSRange(location: 0, length: nsString.length))
+    
+    if let range = results?.range(at: 1) {
+        return nsString.substring(with: range)
+    }
+    return nil
 }
 
 // 扩展 WebDAV 类以实现请求创建
