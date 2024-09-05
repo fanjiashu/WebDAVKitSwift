@@ -14,8 +14,8 @@ public class WebDAV {
     private var headerFields: [String: String]?
     /// 新增的 cookie 属性
     public var cookie: String?
-    /// 默认超时时间设置为30秒  改为3000秒
-    public var timeoutInterval: TimeInterval = 3000
+    /// 默认超时时间设置为30秒  改为60秒
+    public var timeoutInterval: TimeInterval = 60
     
     // 始化 WebDAV 对象，支持用户名密码认证
     public init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {

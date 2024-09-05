@@ -16,8 +16,8 @@ class ViewController: UIViewController {
     }
     private func testWebDAVFunctions() {
         // 配置 WebDAV
-         let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
-        
+        //let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
+        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=1902A661-EC18-4FE9-92E0-2111D3638CAF")
        // let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=7eb3a9f5-0a0b-4c6e-a3f6-614450f11ae7")
         print("Base URL: \(webDAV.baseURL)")
 
@@ -29,8 +29,8 @@ class ViewController: UIViewController {
                 let webDAVTitle = "测试WebDAV的打印"
 
                 // 检查连接状态
-//                let isConnected = try await fileManager.checkLinkStatus()
-//                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
+                let isConnected = try await fileManager.checkLinkStatus()
+                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
 //                
 //                var files = try await fileManager.listFiles(atPath: "/Sourcetree.app")
 //                for (index, file) in files.enumerated() {
@@ -47,12 +47,12 @@ class ViewController: UIViewController {
 //                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
 //                print("是否文件夹 \(fileStatus)")
             
-                    // 下载测试并进行分享
-                let url = try await fileManager.downloadFile(atPath: "/RPReplay_Final1723533092.MP4")
-                let downloadTestData = try Data(contentsOf: url)
-                    let downloadTestFileName = "Sourcetree.app"
-                    print("下载到的资源：\(downloadTestData.count)")
-                    print("接收到的文件路径： \(url)")
+//                    // 下载测试并进行分享
+//                let url = try await fileManager.downloadFile(atPath: "/RPReplay_Final1723533092.MP4")
+//                let downloadTestData = try Data(contentsOf: url)
+//                    let downloadTestFileName = "Sourcetree.app"
+//                    print("下载到的资源：\(downloadTestData.count)")
+//                    print("接收到的文件路径： \(url)")
                 
 //                    // 保存下载文件到临时目录
 //                    let tempDirectory = FileManager.default.temporaryDirectory
