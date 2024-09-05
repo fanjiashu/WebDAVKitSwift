@@ -14,8 +14,8 @@ public class WebDAV {
     private var headerFields: [String: String]?
     /// 新增的 cookie 属性
     public var cookie: String?
-    /// 默认超时时间设置为30秒
-    public var timeoutInterval: TimeInterval = 30
+    /// 默认超时时间设置为30秒  改为3000秒
+    public var timeoutInterval: TimeInterval = 3000
     
     // 始化 WebDAV 对象，支持用户名密码认证
     public init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {
@@ -461,21 +461,48 @@ public extension WebDAV {
     /// - Parameter path: 文件路径
     /// - Returns: 文件数据
     /// - Throws: WebDAVError
-    func downloadFile(atPath path: String) async throws -> Data {
+    func downloadFile(atPath path: String) async throws -> URL {
+//        guard let request = authorizedRequest(path: path, method: .get) else {
+//            throw WebDAVError.invalidCredentials
+//        }
+//        do {
+//            let (data, response) = try await URLSession.shared.data(for: request)
+//            guard let response = response as? HTTPURLResponse,
+//                  200...299 ~= response.statusCode
+//            else {
+//                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+//            }
+//            return data
+//        } catch {
+//            throw WebDAVError.nsError(error)
+//        }
+        
+        
         guard let request = authorizedRequest(path: path, method: .get) else {
-            throw WebDAVError.invalidCredentials
-        }
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse,
-                  200...299 ~= response.statusCode
-            else {
-                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
-            }
-            return data
-        } catch {
-            throw WebDAVError.nsError(error)
-        }
+               throw WebDAVError.invalidCredentials
+           }
+           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+           // 创建一个后台任务的 URLSession 配置（也可以使用默认配置）
+           let configuration = URLSessionConfiguration.default
+           let session = URLSession(configuration: configuration)
+
+           do {
+               // 通过 downloadTask 下载文件，文件会自动保存到一个临时位置
+               let (tempURL, response) = try await session.download(for: request)
+               
+               // 检查响应状态码
+               guard let httpResponse = response as? HTTPURLResponse,
+                     200...299 ~= httpResponse.statusCode
+               else {
+                   throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+               }
+               
+               // 返回下载的文件的临时 URL（位于沙盒的临时目录）
+               return tempURL
+           } catch {
+               throw WebDAVError.nsError(error)
+           }
+        
     }
 }
 

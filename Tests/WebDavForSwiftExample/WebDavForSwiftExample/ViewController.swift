@@ -29,23 +29,38 @@ class ViewController: UIViewController {
                 let webDAVTitle = "测试WebDAV的打印"
 
                 // 检查连接状态
-                let isConnected = try await fileManager.checkLinkStatus()
-                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
-                
-                var files = try await fileManager.listFiles(atPath: "/Sourcetree.app")
-                for (index, file) in files.enumerated() {
-                    print("/Sourcetree.app 路径下：第\(index)文件是：\(file)")
-                }
+//                let isConnected = try await fileManager.checkLinkStatus()
+//                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
+//                
+//                var files = try await fileManager.listFiles(atPath: "/Sourcetree.app")
+//                for (index, file) in files.enumerated() {
+//                    print("/Sourcetree.app 路径下：第\(index)文件是：\(file)")
+//                }
 //                files = try await fileManager.listFiles(atPath: "/Test/Text")
 //                for (index, file) in files.enumerated() {
 //                    print("/Test/Text路径下：第\(index)文件是：\(file)")
 //                }
-                
-                let status = try await webDAV.fileExists(at: "/Sourcetree.app")
-                print("文件存在 \(status)")
 //                
-                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
-                print("是否文件夹 \(fileStatus)")
+//                let status = try await webDAV.fileExists(at: "/Sourcetree.app")
+//                print("文件存在 \(status)")
+//                
+//                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
+//                print("是否文件夹 \(fileStatus)")
+            
+                    // 下载测试并进行分享
+                let url = try await fileManager.downloadFile(atPath: "/RPReplay_Final1723533092.MP4")
+                let downloadTestData = try Data(contentsOf: url)
+                    let downloadTestFileName = "Sourcetree.app"
+                    print("下载到的资源：\(downloadTestData.count)")
+                
+//                    // 保存下载文件到临时目录
+//                    let tempDirectory = FileManager.default.temporaryDirectory
+//                    let tempFileURL = tempDirectory.appendingPathComponent(downloadTestFileName)
+//                    try downloadTestData.write(to: tempFileURL)
+//
+//                    // 系统分享下载的内容
+//                    let activityViewController = UIActivityViewController(activityItems: [tempFileURL], applicationActivities: nil)
+//                    self.present(activityViewController, animated: true, completion: nil)
                 
 
 //                // 创建文件夹

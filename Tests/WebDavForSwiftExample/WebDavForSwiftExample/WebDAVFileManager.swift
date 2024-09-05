@@ -26,7 +26,7 @@ class WebDAVFileManager {
     }
     
     // 下载 WebDAV 上的文件
-    func downloadFile(atPath path: String) async throws -> Data {
+    func downloadFile(atPath path: String) async throws -> URL {
         return try await webDAV.downloadFile(atPath: path)
     }
     
