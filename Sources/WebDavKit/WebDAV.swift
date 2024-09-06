@@ -122,19 +122,19 @@ public class WebDAV {
         
         var files = files
         
-//        // 检查是否需要移除第一个文件
-//        if !includeSelf, !files.isEmpty {
-//            // 优化：只有当有目录文件时才移除第一个文件
-//            let hasDirectory = files.contains { $0.isDirectory }
-//            if hasDirectory {
-//                files.removeFirst()
-//                print("移除第一个文件")
-//            }
-//            if files.first?.path == ""{
-//                files.removeFirst()
-//                print("移除第一个文件,因为是根目录本身")
-//            }
-//        }
+        // 检查是否需要移除第一个文件
+        if !includeSelf, !files.isEmpty {
+            // 优化：只有当有目录文件时才移除第一个文件
+            let hasDirectory = files.contains { $0.isDirectory }
+            if hasDirectory {
+                files.removeFirst()
+                print("移除第一个文件")
+            }
+            if files.first?.path == ""{
+                files.removeFirst()
+                print("移除第一个文件,因为是根目录本身")
+            }
+        }
         
         // 目录优先排序
         if foldersFirst {

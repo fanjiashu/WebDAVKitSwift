@@ -32,10 +32,10 @@ class ViewController: UIViewController {
                 let isConnected = try await fileManager.checkLinkStatus()
                 print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
 //                
-//                let files = try await fileManager.listFiles(atPath: "/Pictures/")
-//                for (index, file) in files.enumerated() {
-//                    print("/：第\(index)文件是：\(file)")
-//                }
+                let files = try await fileManager.listFiles(atPath: "/Pictures/")
+                for (index, file) in files.enumerated() {
+                    print("/：第\(index)文件是：\(file)")
+                }
 //                files = try await fileManager.listFiles(atPath: "/Test/Text")
 //                for (index, file) in files.enumerated() {
 //                    print("/Test/Text路径下：第\(index)文件是：\(file)")
@@ -44,8 +44,8 @@ class ViewController: UIViewController {
 //                let status = try await webDAV.fileExists(at: "/Sourcetree.app")
 //                print("文件存在 \(status)")
 //                
-                let fileStatus = try await webDAV.isDirectory(atPath: "/")
-                print("是否文件夹 \(fileStatus)")
+//                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
+//                print("是否文件夹 \(fileStatus)")
             
 //                    // 下载测试并进行分享
 //                let url = try await fileManager.downloadFile(atPath: "/RPReplay_Final1723533092.MP4")
