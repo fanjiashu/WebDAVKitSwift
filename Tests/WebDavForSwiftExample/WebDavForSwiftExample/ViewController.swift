@@ -16,10 +16,9 @@ class ViewController: UIViewController {
     }
     private func testWebDAVFunctions() {
         // 配置 WebDAV
-        //let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
+       // let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
        // WAD测试：URL = https://file.workspace.heiyu.space/_lzc/files/home, toekn = 98a07f2a-01c3-4b21-8f4f-566093e00fa1
         let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
-       // let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=7eb3a9f5-0a0b-4c6e-a3f6-614450f11ae7")
         print("Base URL: \(webDAV.baseURL)")
 
         let fileManager = WebDAVFileManager(webDAV: webDAV)
@@ -33,7 +32,7 @@ class ViewController: UIViewController {
                 let isConnected = try await fileManager.checkLinkStatus()
                 print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
 //                
-                let files = try await fileManager.listFiles(atPath: "/")
+                let files = try await fileManager.listFiles(atPath: "/Pictures/")
                 for (index, file) in files.enumerated() {
                     print("/：第\(index)文件是：\(file)")
                 }

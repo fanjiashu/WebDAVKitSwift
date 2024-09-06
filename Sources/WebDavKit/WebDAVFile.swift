@@ -60,14 +60,24 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
             return nil
         }
 
-        // 解析是否为目录
-        let isDirectory: Bool
-        if let collectionElement = xml["propstat"]["prop"]["resourcetype"]["collection"].element {
-            isDirectory = collectionElement.text.isEmpty
-        } else {
-            isDirectory = xml["propstat"]["prop"]["resourcetype"]["collection"].element != nil
+
+        var isDirectory = false
+        // 遍历所有 propstat 节点，并找到状态为 200 OK 的节点
+        for propstat in xml["propstat"].all {
+            if let statusText = propstat["status"].element?.text, statusText.contains("200 OK") {
+                // 处理 resourcetype 节点
+                let resourceType = propstat["prop"]["resourcetype"]
+                print("文件：resourceType XML: \(resourceType)")
+
+                // 判断 <collection> 节点是否存在
+                isDirectory = resourceType["collection"].element != nil
+                print("文件：Is Directory: \(isDirectory)")
+
+                // 如果找到正确的 resourceType，则可以退出循环
+                break
+            }
         }
-        print("Is Directory: \(isDirectory)")
+
 
         // 解析文件大小
         var size: Int64 = 0

@@ -219,10 +219,6 @@ public extension WebDAV {
                 )
             }
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
-            for item in sortFiles {
-               // print(item.name)
-               // print(item.path)
-            }
             return sortFiles
         } catch {
             throw WebDAVError.nsError(error)
@@ -376,21 +372,40 @@ public extension WebDAV {
 
             // 打印原始 XML 响应
             if let xmlString = String(data: data, encoding: .utf8) {
-                print("Received XML: \(xmlString)")
+                print("Full XML:\(xmlString)")
             }
 
             let xml = XMLHash.parse(data)
             
-            // 获取 resourcetype 节点并检查它是否包含 <D:collection/>
-            let resourceType = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:resourcetype"]
-            // 处理路径以 .app 结尾的情况，强制识别为文件，不在解析，以及解析会出错
-            if path.hasSuffix(".app") {
-                return false
+//            // 获取 resourcetype 节点并检查它是否包含 <D:collection/>
+//            let resourceType = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:resourcetype"]
+//            // 处理路径以 .app 结尾的情况，强制识别为文件，不在解析，以及解析会出错
+//            if path.hasSuffix(".app") {
+//                return false
+//            }
+//            print("resourceType XML: \(resourceType)")
+//            // 只有在 resourcetype 中包含 <D:collection> 才返回 true
+//            let isDirectory = !resourceType.children.isEmpty && !resourceType["D:collection"].all.isEmpty
+//            return isDirectory
+            
+            var isDirectory = false
+            // 遍历所有 propstat 节点，并找到状态为 200 OK 的节点
+            for propstat in xml["propstat"].all {
+                if let statusText = propstat["status"].element?.text, statusText.contains("200 OK") {
+                    // 处理 resourcetype 节点
+                    let resourceType = propstat["prop"]["resourcetype"]
+                    print("文件：resourceType XML: \(resourceType)")
+
+                    // 判断 <collection> 节点是否存在
+                    isDirectory = resourceType["collection"].element != nil
+                    print("文件：Is Directory: \(isDirectory)")
+
+                    // 如果找到正确的 resourceType，则可以退出循环
+                    break
+                }
             }
-            print("resourceType XML: \(resourceType)")
-            // 只有在 resourcetype 中包含 <D:collection> 才返回 true
-            let isDirectory = !resourceType.children.isEmpty && !resourceType["D:collection"].all.isEmpty
             return isDirectory
+            
         } catch {
             throw WebDAVError.nsError(error)
         }
