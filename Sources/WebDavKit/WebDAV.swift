@@ -118,7 +118,7 @@ public class WebDAV {
 //    }
     
     public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
-        print("排序:排序前，文件数量: \(files.count)，文件详情: \(files)")
+        print("排序:排序前，文件数量: \(files.count)")
         
         var files = files
         
@@ -130,6 +130,10 @@ public class WebDAV {
                 files.removeFirst()
                 print("移除第一个文件")
             }
+            if files.first?.path == ""{
+                files.removeFirst()
+                print("移除第一个文件,因为是根目录本身")
+            }
         }
         
         // 目录优先排序
@@ -137,7 +141,7 @@ public class WebDAV {
             let directories = files.filter { $0.isDirectory }
             let nonDirectories = files.filter { !$0.isDirectory }
             files = directories + nonDirectories
-            print("排序:目录优先排序后，文件数量: \(files.count)")
+         //   print("排序:目录优先排序后，文件数量: \(files.count)")
         }
 
         // 过滤隐藏文件
@@ -197,13 +201,13 @@ public extension WebDAV {
             
             // 打印原始 XML 响应
             if let xmlString = String(data: data, encoding: .utf8) {
-                print("Received XML: \(xmlString)")
+              //  print("Received XML: \(xmlString)")
             }
             
             let xml = XMLHash.config { config in
                 config.shouldProcessNamespaces = true
             }.parse(String(data: data, encoding: .utf8) ?? "")
-            print("xml多少个节点: \(xml.children.first?.children.count ?? 0)")
+                //  print("xml多少个节点: \(xml.children.first?.children.count ?? 0)")
             
             // 检查认证类型并传递对应的认证信息
             let files = xml["multistatus"]["response"].all.compactMap {
@@ -216,8 +220,8 @@ public extension WebDAV {
             }
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
             for item in sortFiles {
-                print(item.name)
-                print(item.path)
+               // print(item.name)
+               // print(item.path)
             }
             return sortFiles
         } catch {
