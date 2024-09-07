@@ -540,7 +540,13 @@ public extension WebDAV {
     ///   - method: HTTP 方法
     /// - Returns: 授权后的 URL 请求
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
-        let url = self.baseURL.appendingPathComponent(path)
+        var url:URL
+        if path.hasPrefix(self.baseURL.absoluteString) {
+                // 如果 path 已包含 baseURL，不要再拼接
+            url = URL(string: path)!
+        }else{
+            url = self.baseURL.appendingPathComponent(path)
+        }
         var request = URLRequest(url: url)
         // 设置请求方式
         request.httpMethod = method.rawValue
