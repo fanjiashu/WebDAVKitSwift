@@ -146,7 +146,7 @@ public class WebDAV {
 
         // 过滤隐藏文件
         files = files.filter { !$0.fileName.hasPrefix(".") }
-        print("排序:过滤隐藏文件后，文件数量: \(files.count)，文件详情: \(files)")
+       // print("排序:过滤隐藏文件后，文件数量: \(files.count)，文件详情: \(files)")
         
         return files
     }
@@ -190,26 +190,26 @@ public extension WebDAV {
             </D:propfind>
             """
         request.httpBody = body.data(using: .utf8)
-        
+
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse,
-                  200...299 ~= response.statusCode
+                  200 ... 299 ~= response.statusCode
             else {
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
             }
-            
+
             // 打印原始 XML 响应
             if let xmlString = String(data: data, encoding: .utf8) {
-              //  print("Received XML: \(xmlString)")
+                //  print("Received XML: \(xmlString)")
             }
-            
+
             let xml = XMLHash.config { config in
                 config.shouldProcessNamespaces = true
             }.parse(String(data: data, encoding: .utf8) ?? "")
-                //  print("xml多少个节点: \(xml.children.first?.children.count ?? 0)")
-            
-            // 检查认证类型并传递对应的认证信息
+            //  print("xml多少个节点: \(xml.children.first?.children.count ?? 0)")
+
+//            // 检查认证类型并传递对应的认证信息
             let files = xml["multistatus"]["response"].all.compactMap {
                 WebDAVFile(
                     xml: $0,
@@ -219,11 +219,98 @@ public extension WebDAV {
                 )
             }
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
-            return sortFiles
+
+            // 使用并发请求来获取每个文件夹的子文件数量
+            let childCounts = try await withThrowingTaskGroup(of: (Int, Int).self) { group in
+                for (index, file) in sortFiles.enumerated() {
+                    if file.isDirectory {
+                        group.addTask {
+                            let count = try await self.fetchChildItemCount(for: file.path)
+                            return (index, count) // 返回文件的索引和子文件数量
+                        }
+                    }
+                }
+
+                var counts = Array(repeating: 0, count: sortFiles.count)
+                for try await (index, count) in group {
+                    counts[index] = count // 根据索引将数量存储到对应位置
+                }
+                return counts
+            }
+
+            let childItemCounts = childCounts
+            // 将子文件数量整合到文件对象中
+            let updatedFiles = sortFiles.enumerated().map { index, file -> WebDAVFile in
+                var mutableFile = file
+                if mutableFile.isDirectory {
+                    mutableFile.childItemCount = childItemCounts[index]
+                }
+                return mutableFile
+            }
+
+            return updatedFiles
         } catch {
             throw WebDAVError.nsError(error)
         }
     }
+
+    // 封装获取子文件数量的方法
+    func fetchChildItemCount(for path: String) async throws -> Int {
+        guard var request = authorizedRequest(path: path, method: .propfind) else {
+            throw WebDAVError.invalidCredentials
+        }
+
+        // 设置 PROPFIND 请求的 body
+        let body =
+            """
+            <?xml version="1.0" encoding="utf-8" ?>
+            <D:propfind xmlns:D="DAV:">
+                <D:prop>
+                    <D:getcontentlength/>
+                    <D:getlastmodified/>
+                    <D:getcontenttype />
+                    <D:resourcetype/>
+                </D:prop>
+            </D:propfind>
+            """
+        request.httpBody = body.data(using: .utf8)
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let response = response as? HTTPURLResponse,
+                  200 ... 299 ~= response.statusCode
+            else {
+                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+            }
+
+            // 打印原始 XML 响应
+            if let xmlString = String(data: data, encoding: .utf8) {
+                //  print("Received XML: \(xmlString)")
+            }
+
+            let xml = XMLHash.config { config in
+                config.shouldProcessNamespaces = true
+            }.parse(String(data: data, encoding: .utf8) ?? "")
+            //  print("xml多少个节点: \(xml.children.first?.children.count ?? 0)")
+
+//            // 检查认证类型并传递对应的认证信息
+            let files = xml["multistatus"]["response"].all.compactMap {
+                WebDAVFile(
+                    xml: $0,
+                    baseURL: self.baseURL,
+                    auth: self.auth,
+                    cookie: self.cookie
+                )
+            }
+            let sortFiles = WebDAV.sortedFiles(files, foldersFirst: true, includeSelf: false)
+            return sortFiles.count
+        } catch {
+            throw WebDAVError.nsError(error)
+        }
+    }
+    
+    
+    
 
     /// 删除指定路径的文件
     /// - Parameter path: 需要删除的文件路径

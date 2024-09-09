@@ -17,6 +17,8 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
     public private(set) var url: URL
     public private(set) var auth: String?
     public private(set) var cookie: String?
+    // 新增 childItemCount 属性
+    public var childItemCount:Int = 0
 
     init?(xml: XMLIndexer, baseURL: URL, auth: String? = nil, cookie: String? = nil) {
         print("Received XML: \(String(describing: xml.element))")
@@ -154,12 +156,15 @@ public struct WebDAVFile: Identifiable, Codable, Equatable, Hashable {
         self.cookie = cookie
     }
     
+//    //获取子文件节点数量
+//    func parseChildItemCount(from xml: XMLIndexer) -> Int {
+//        // 获取所有 response 节点
+//        let responses = xml["multistatus"]["response"].all
+//        // 忽略第一个 response 节点，因为它是根目录本身
+//        let childCount = responses.count > 0 ? responses.count - 1 : 0
+//        return childCount
+//    }
     
-    
-    
-    
-    
-
     static let rfc1123Formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
