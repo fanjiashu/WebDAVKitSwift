@@ -535,34 +535,36 @@ func extractFileName(from contentDisposition: String) -> String? {
 // 扩展 WebDAV 类以实现请求创建
 public extension WebDAV {
     /// 创建一个授权的 URL 请求，支持两种认证方式
-    /// - Parameters:
-    ///   - path: 请求的路径
-    ///   - method: HTTP 方法
-    /// - Returns: 授权后的 URL 请求
-    func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
-        var url:URL
-        if path.hasPrefix(self.baseURL.absoluteString) {
-                // 如果 path 已包含 baseURL，不要再拼接
-            url = URL(string: path)!
-        }else{
-            url = self.baseURL.appendingPathComponent(path)
-        }
-        var request = URLRequest(url: url)
-        // 设置请求方式
-        request.httpMethod = method.rawValue
-        // 设置超时时间
-        request.timeoutInterval = self.timeoutInterval
-        // 设置认证头部
-        if let auth = self.auth {
-            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-        } else if let headerFields = self.headerFields {
-            for (key, value) in headerFields {
-                request.setValue(value, forHTTPHeaderField: key)
-            }
-        }
-        if method == .propfind {
-            request.setValue("1", forHTTPHeaderField: "Depth")
-        }
-        return request
-    }
+     /// - Parameters:
+     ///   - path: 请求的路径
+     ///   - method: HTTP 方法
+     /// - Returns: 授权后的 URL 请求
+     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
+         var url: URL
+         if let pathURL = URL(string: path), pathURL.host != nil {
+             // 如果 path 是一个完整的 URL，则直接使用
+             url = pathURL
+         } else {
+             // 否则将其拼接到 baseURL 后面
+             url = self.baseURL.appendingPathComponent(path)
+         }
+
+         var request = URLRequest(url: url)
+         // 设置请求方式
+         request.httpMethod = method.rawValue
+         // 设置超时时间
+         request.timeoutInterval = self.timeoutInterval
+         // 设置认证头部
+         if let auth = self.auth {
+             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+         } else if let headerFields = self.headerFields {
+             for (key, value) in headerFields {
+                 request.setValue(value, forHTTPHeaderField: key)
+             }
+         }
+         if method == .propfind {
+             request.setValue("1", forHTTPHeaderField: "Depth")
+         }
+         return request
+     }
 }
