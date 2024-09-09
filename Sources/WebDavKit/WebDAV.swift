@@ -219,36 +219,36 @@ public extension WebDAV {
                 )
             }
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
-
-            // 使用并发请求来获取每个文件夹的子文件数量
-            let childCounts = try await withThrowingTaskGroup(of: (Int, Int).self) { group in
-                for (index, file) in sortFiles.enumerated() {
-                    if file.isDirectory {
-                        group.addTask {
-                            let count = try await self.fetchChildItemCount(for: file.path)
-                            return (index, count) // 返回文件的索引和子文件数量
-                        }
-                    }
-                }
-
-                var counts = Array(repeating: 0, count: sortFiles.count)
-                for try await (index, count) in group {
-                    counts[index] = count // 根据索引将数量存储到对应位置
-                }
-                return counts
-            }
-
-            let childItemCounts = childCounts
-            // 将子文件数量整合到文件对象中
-            let updatedFiles = sortFiles.enumerated().map { index, file -> WebDAVFile in
-                var mutableFile = file
-                if mutableFile.isDirectory {
-                    mutableFile.childItemCount = childItemCounts[index]
-                }
-                return mutableFile
-            }
-
-            return updatedFiles
+            return sortFiles
+//            // 使用并发请求来获取每个文件夹的子文件数量
+//            let childCounts = try await withThrowingTaskGroup(of: (Int, Int).self) { group in
+//                for (index, file) in sortFiles.enumerated() {
+//                    if file.isDirectory {
+//                        group.addTask {
+//                            let count = try await self.fetchChildItemCount(for: file.path)
+//                            return (index, count) // 返回文件的索引和子文件数量
+//                        }
+//                    }
+//                }
+//
+//                var counts = Array(repeating: 0, count: sortFiles.count)
+//                for try await (index, count) in group {
+//                    counts[index] = count // 根据索引将数量存储到对应位置
+//                }
+//                return counts
+//            }
+//
+//            let childItemCounts = childCounts
+//            // 将子文件数量整合到文件对象中
+//            let updatedFiles = sortFiles.enumerated().map { index, file -> WebDAVFile in
+//                var mutableFile = file
+//                if mutableFile.isDirectory {
+//                    mutableFile.childItemCount = childItemCounts[index]
+//                }
+//                return mutableFile
+//            }
+//
+//            return updatedFiles
         } catch {
             throw WebDAVError.nsError(error)
         }
