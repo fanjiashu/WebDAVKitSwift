@@ -18,37 +18,65 @@
             endingLineNumber = "116"
             landmarkName = "testWebDAVFunctions()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "63E26099-1CB9-4AED-A35A-407EF50639C8 - baca5a9db1c78653"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(8) suspend resume partial function for closure #1 @Sendable () async -&gt; () in WebDavForSwiftExample.ViewController.testWebDAVFunctions() -&gt; ()"
+                  moduleName = "WebDavForSwiftExample"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mac/Desktop/workplace/Github/DAVKitSwift/Tests/WebDavForSwiftExample/WebDavForSwiftExample/ViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "116"
+                  endingLineNumber = "116">
+               </Location>
+               <Location
+                  uuid = "63E26099-1CB9-4AED-A35A-407EF50639C8 - ee19e5f655f3a452"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(9) suspend resume partial function for closure #1 @Sendable () async -&gt; () in WebDavForSwiftExample.ViewController.testWebDAVFunctions() -&gt; ()"
+                  moduleName = "WebDavForSwiftExample"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mac/Desktop/workplace/Github/DAVKitSwift/Tests/WebDavForSwiftExample/WebDavForSwiftExample/ViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "116"
+                  endingLineNumber = "116">
+               </Location>
+               <Location
+                  uuid = "63E26099-1CB9-4AED-A35A-407EF50639C8 - 6704e68735d62f1d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(10) suspend resume partial function for closure #1 @Sendable () async -&gt; () in WebDavForSwiftExample.ViewController.testWebDAVFunctions() -&gt; ()"
+                  moduleName = "WebDavForSwiftExample"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mac/Desktop/workplace/Github/DAVKitSwift/Tests/WebDavForSwiftExample/WebDavForSwiftExample/ViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "116"
+                  endingLineNumber = "116">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "EA4CEBA2-C2C7-415B-8D9C-0D815F7CE7FD"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "WebDavForSwiftExample/ViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "testWebDAVFunctions()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E6C91D34-5192-4568-B78E-60F4B91437A8"
+            uuid = "99201E44-EC82-4771-BF3C-03237AF24DF5"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../Sources/WebDavKit/WebDAV.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "129"
-            endingLineNumber = "129"
-            landmarkName = "sortedFiles(_:foldersFirst:includeSelf:)"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
+            landmarkName = "fileExists(at:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

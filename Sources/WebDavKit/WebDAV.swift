@@ -541,13 +541,15 @@ public extension WebDAV {
      /// - Returns: 授权后的 URL 请求
      func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
          var url: URL
-         if let pathURL = URL(string: path), pathURL.host != nil {
-             // 如果 path 是一个完整的 URL，则直接使用
-             url = pathURL
-         } else {
-             // 否则将其拼接到 baseURL 后面
-             url = self.baseURL.appendingPathComponent(path)
-         }
+         // 如果 path 已包含 baseURL 的路径，则不要再拼接
+                 if path.hasPrefix(self.baseURL.path) {
+                     // 直接将 path 转化为完整 URL
+                     url = URL(string: path, relativeTo: self.baseURL)!
+                 } else {
+                     // 否则，将 path 作为相对路径拼接
+                     url = self.baseURL.appendingPathComponent(path)
+                 }
+
 
          var request = URLRequest(url: url)
          // 设置请求方式

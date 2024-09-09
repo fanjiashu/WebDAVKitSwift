@@ -41,8 +41,8 @@ class ViewController: UIViewController {
 //                    print("/Test/Text路径下：第\(index)文件是：\(file)")
 //                }
 //                
-//                let status = try await webDAV.fileExists(at: "/Sourcetree.app")
-//                print("文件存在 \(status)")
+                let status = try await webDAV.fileExists(at: "/testFolder/sample.txt")
+                print("文件存在 \(status)")
 //                
 //                let fileStatus = try await webDAV.isDirectory(atPath: "/Sourcetree.app")
 //                print("是否文件夹 \(fileStatus)")
