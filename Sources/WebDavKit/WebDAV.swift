@@ -451,7 +451,7 @@ public extension WebDAV {
             guard let response = response as? HTTPURLResponse,
                   200 ... 299 ~= response.statusCode
             else {
-                print("报错 \(response)")
+                print("判断文件类型报错 \(response) 原始path：\(path)")
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
             }
 
@@ -635,41 +635,47 @@ public extension WebDAV {
     ///   - method: HTTP 方法
     /// - Returns: 授权后的 URL 请求
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
-        // 确认是否需要对路径进行 URL 编码
-        let shouldEncode = self.shouldEncode(path: path)
-        let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
+        // 对路径进行 URL 编码，确保特殊字符不会引发错误
+          let shouldEncode = self.shouldEncode(path: path)
+          let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
 
-        var url: URL
+          // 拼接完整的 URL 字符串
+          let baseURLString = self.baseURL.absoluteString
+          let fullPath: String
 
-        // 如果 path 已包含 baseURL 的路径，则不要再拼接
-        if encodedPath.hasPrefix(self.baseURL.path) {
-            // 直接使用相对的完整路径创建 URL
-            url = URL(string: encodedPath, relativeTo: self.baseURL)!
-        } else {
-            // 否则，将 path 作为相对路径拼接
-            url = self.baseURL.appendingPathComponent(encodedPath)
-        }
+          // 判断 baseURL 是否已经包含 path 部分
+          if baseURLString.hasSuffix("/") {
+              fullPath = baseURLString + (encodedPath.hasPrefix("/") ? String(encodedPath.dropFirst()) : encodedPath)
+          } else {
+              fullPath = baseURLString + (encodedPath.hasPrefix("/") ? encodedPath : "/" + encodedPath)
+          }
+          
+          // 创建 URL 对象
+          guard let url = URL(string: fullPath) else {
+              print("Error: 无法生成有效的 URL")
+              return nil
+          }
+          print("传入后得到的URL \(url)")
+          
+          var request = URLRequest(url: url)
+          request.httpMethod = method.rawValue
+          request.timeoutInterval = self.timeoutInterval
 
-        // 创建请求对象
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        request.timeoutInterval = self.timeoutInterval
+          // 设置认证头部
+          if let auth = self.auth {
+              request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+          } else if let headerFields = self.headerFields {
+              for (key, value) in headerFields {
+                  request.setValue(value, forHTTPHeaderField: key)
+              }
+          }
 
-        // 设置认证头部
-        if let auth = self.auth {
-            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-        } else if let headerFields = self.headerFields {
-            for (key, value) in headerFields {
-                request.setValue(value, forHTTPHeaderField: key)
-            }
-        }
-
-        // 针对 PROPFIND 请求设置 Depth 头部
-        if method == .propfind {
-            request.setValue("1", forHTTPHeaderField: "Depth")
-        }
-
-        return request
+          // 如果是 PROPFIND 请求，设置 Depth 头部
+          if method == .propfind {
+              request.setValue("1", forHTTPHeaderField: "Depth")
+          }
+          
+          return request
     }
 
     /// - Parameters:
