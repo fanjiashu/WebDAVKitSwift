@@ -16,9 +16,11 @@ class ViewController: UIViewController {
     }
     private func testWebDAVFunctions() {
         // 配置 WebDAV
-        let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
-       // WAD测试：URL = https://file.workspace.heiyu.space/_lzc/files/home, toekn = 98a07f2a-01c3-4b21-8f4f-566093e00fa1
-        // let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
+      //let webDAV = WebDAV(baseURL: "http://192.168.100.149:8080/", port: 8080, username: "fjs", password: "123")
+        
+       // WAD测试：URL = https://file.jxl888.heiyu.space/_lzc/files/home, toekn = a49b4c55-4f15-415e-8674-c4e6364bb06a
+        //WAD测试：URL = https://file.workspace.heiyu.space/_lzc/files/home, toekn = 98a07f2a-01c3-4b21-8f4f-566093e00fa1
+         let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
         print("Base URL: \(webDAV.baseURL)")
 
         let fileManager = WebDAVFileManager(webDAV: webDAV)
@@ -28,11 +30,10 @@ class ViewController: UIViewController {
                 print("开始连接")
                 let webDAVTitle = "测试WebDAV的打印"
 
-                // 检查连接状态
-                let isConnected = try await fileManager.checkLinkStatus()
-                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
-//                
-//                let files = try await fileManager.listFiles(atPath: "/")
+//                // 检查连接状态
+//                let isConnected = try await fileManager.checkLinkStatus()
+//                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
+                let files = try await fileManager.listFiles(atPath: "/下载")
 //                for (index, file) in files.enumerated() {
 //                    print("/：文件\(file.path)有\(String(describing: file.childItemCount)) 个文件")
 //                }
@@ -44,11 +45,11 @@ class ViewController: UIViewController {
 //                let status = try await webDAV.fileExists(at: "/testFolder/sample.txt")
 //                print("文件存在 \(status)")
 //                
-                let fileStatus = try await webDAV.isDirectory(atPath: "/财会讲义(1).docx")
+                let fileStatus = try await webDAV.isDirectory(atPath: "/下载")
                 print("是否文件夹 \(fileStatus)")
             
 //                    // 下载测试并进行分享
-                let url = try await fileManager.downloadFile(atPath: "/财会讲义(1).docx")
+//                let url = try await fileManager.downloadFile(atPath: "/通讯录.xls")
 //               let downloadTestData = try Data(contentsOf: url)
 //                let downloadTestFileName = "#@$%.txt"
 //                    print("下载到的资源：\(downloadTestData.count)")
@@ -60,8 +61,8 @@ class ViewController: UIViewController {
 //                    try downloadTestData.write(to: tempFileURL)
 //
 //                    // 系统分享下载的内容
-                    let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                    self.present(activityViewController, animated: true, completion: nil)
+//                    let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+//                    self.present(activityViewController, animated: true, completion: nil)
                 
 
 //                // 创建文件夹

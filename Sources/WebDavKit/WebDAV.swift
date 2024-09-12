@@ -454,6 +454,7 @@ public extension WebDAV {
             guard let response = response as? HTTPURLResponse,
                   200...299 ~= response.statusCode
             else {
+                print("报错 \(response)")
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
             }
 
@@ -628,10 +629,11 @@ public extension WebDAV {
     /// - Returns: 授权后的 URL 请求
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
         // 对路径进行 URL 编码，确保特殊字符不会引发错误
-        guard let encodedPath = path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
-            return nil // 如果编码失败，返回 nil
-        }
-
+        let shouldEncode =  self.shouldEncode(path: path)
+        // 如果需要编码则进行编码
+        let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
+            
+       // let encodedPath = path
         var url: URL
         // 如果 path 已包含 baseURL 的路径，则不要再拼接
         if encodedPath.hasPrefix(self.baseURL.path) {
@@ -660,5 +662,48 @@ public extension WebDAV {
         }
         
         return request
+    }
+    
+    
+    /// - Parameters:
+    ///   - path: 请求的路径
+    ///   - method: HTTP 方法
+    /// - Returns: 授权后的 URL 请求
+//    func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
+//        var url: URL
+//        // 如果 path 已包含 baseURL 的路径，则不要再拼接
+//                if path.hasPrefix(self.baseURL.path) {
+//                    // 直接将 path 转化为完整 URL
+//                    url = URL(string: path, relativeTo: self.baseURL)!
+//                } else {
+//                    // 否则，将 path 作为相对路径拼接
+//                    url = self.baseURL.appendingPathComponent(path)
+//                }
+//
+//
+//        var request = URLRequest(url: url)
+//        // 设置请求方式
+//        request.httpMethod = method.rawValue
+//        // 设置超时时间
+//        request.timeoutInterval = self.timeoutInterval
+//        // 设置认证头部
+//        if let auth = self.auth {
+//            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+//        } else if let headerFields = self.headerFields {
+//            for (key, value) in headerFields {
+//                request.setValue(value, forHTTPHeaderField: key)
+//            }
+//        }
+//        if method == .propfind {
+//            request.setValue("1", forHTTPHeaderField: "Depth")
+//        }
+//        return request
+//    }
+    
+    
+    func shouldEncode(path: String) -> Bool {
+        // 仅对非 ASCII 字符且不是中文字符的部分进行编码
+        // 中文字符的 Unicode 范围是 \u4E00-\u9FFF
+        return path.range(of: "[^a-zA-Z0-9/_\\u4E00-\\u9FFF-]", options: .regularExpression) != nil
     }
 }
