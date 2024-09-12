@@ -16,7 +16,7 @@ public class WebDAV {
     public var cookie: String?
     /// 默认超时时间设置为30秒  改为60秒
     public var timeoutInterval: TimeInterval = 60
-    
+
     // 始化 WebDAV 对象，支持用户名密码认证
     public init(baseURL: String, port: Int, username: String? = nil, password: String? = nil, path: String? = nil) {
         // 确保 baseURL 有协议前缀
@@ -26,16 +26,16 @@ public class WebDAV {
         } else {
             processedBaseURL = "http://" + baseURL
         }
-        
+
         // 创建 URL 对象
         guard let url = URL(string: processedBaseURL) else {
             fatalError("无效的 base URL")
         }
-        
+
         // 处理端口
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         urlComponents.port = (port != 80 && port != 443) ? port : nil
-        
+
         // 处理路径
         if let path = path, !path.isEmpty {
             let trimmedPath = path.hasPrefix("/") ? path : "/\(path)"
@@ -43,21 +43,21 @@ public class WebDAV {
         } else {
             urlComponents.path = ""
         }
-        
+
         // 生成最终的 URL
         let fullURLString = urlComponents.string ?? processedBaseURL
         guard let finalURL = URL(string: fullURLString) else {
             fatalError("无效的 URL")
         }
-        
+
         self.baseURL = finalURL
-        
+
         // 设置认证字符串
         let authString = "\(username ?? ""):\(password ?? "")"
         let authData = authString.data(using: .utf8)
         self.auth = authData?.base64EncodedString() ?? ""
     }
-    
+
     // 新增cookie 初始化
     public init(baseURL: String, port: Int, cookie: String, path: String? = nil) {
         // 处理 baseURL
@@ -65,21 +65,21 @@ public class WebDAV {
         if !baseURL.hasPrefix("http://"), !baseURL.hasPrefix("https://") {
             processedBaseURL = "http://" + baseURL
         }
-        
+
         guard let url = URL(string: processedBaseURL) else {
             fatalError("无效的 base URL")
         }
-        
+
         // 配置 URL 组件
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-        
+
         // 处理端口
         if port != 80, port != 443 {
             urlComponents.port = port
         } else {
             urlComponents.port = nil // 移除默认端口设置
         }
-        
+
         // 处理路径
         if let path = path, !path.isEmpty {
             // 确保路径以 '/' 开头，不会影响原始的 baseURL
@@ -89,14 +89,14 @@ public class WebDAV {
                 urlComponents.path += path
             }
         }
-        
+
         // 构造最终 URL
         guard let finalURL = urlComponents.url else {
             fatalError("无效的 URL")
         }
-        
+
         self.baseURL = finalURL
-        
+
         // 设置 headerFields，用于 Cookie 认证
         self.headerFields = ["Cookie": cookie]
         self.cookie = cookie
@@ -116,12 +116,12 @@ public class WebDAV {
 //        print("测试WebDAV的打印:排序后 文件多少个：\(files.count) :   \(files)")
 //        return files
 //    }
-    
+
     public static func sortedFiles(_ files: [WebDAVFile], foldersFirst: Bool, includeSelf: Bool) -> [WebDAVFile] {
         print("排序:排序前，文件数量: \(files.count)")
-        
+
         var files = files
-        
+
         // 检查是否需要移除第一个文件
         if !includeSelf, !files.isEmpty {
             // 优化：只有当有目录文件时才移除第一个文件
@@ -130,24 +130,24 @@ public class WebDAV {
                 files.removeFirst()
                 print("移除第一个文件")
             }
-            if files.first?.path == ""{
+            if files.first?.path == "" {
                 files.removeFirst()
                 print("移除第一个文件,因为是根目录本身")
             }
         }
-        
+
         // 目录优先排序
         if foldersFirst {
             let directories = files.filter { $0.isDirectory }
             let nonDirectories = files.filter { !$0.isDirectory }
             files = directories + nonDirectories
-         //   print("排序:目录优先排序后，文件数量: \(files.count)")
+            //   print("排序:目录优先排序后，文件数量: \(files.count)")
         }
 
         // 过滤隐藏文件
         files = files.filter { !$0.fileName.hasPrefix(".") }
-       // print("排序:过滤隐藏文件后，文件数量: \(files.count)，文件详情: \(files)")
-        
+        // print("排序:过滤隐藏文件后，文件数量: \(files.count)，文件详情: \(files)")
+
         return files
     }
 }
@@ -163,7 +163,7 @@ public extension WebDAV {
             return false
         }
     }
-    
+
     /// 列出指定路径下的文件
     /// - Parameters:
     ///   - path: 需要列出文件的路径
@@ -308,9 +308,6 @@ public extension WebDAV {
             throw WebDAVError.nsError(error)
         }
     }
-    
-    
-    
 
     /// 删除指定路径的文件
     /// - Parameter path: 需要删除的文件路径
@@ -325,12 +322,12 @@ public extension WebDAV {
             guard let response = response as? HTTPURLResponse else {
                 return false
             }
-            return 200...299 ~= response.statusCode
+            return 200 ... 299 ~= response.statusCode
         } catch {
             throw WebDAVError.nsError(error)
         }
     }
-    
+
     /// 创建指定路径的文件夹
     /// - Parameter path: 需要创建的文件夹路径
     /// - Returns: 是否创建成功
@@ -344,12 +341,12 @@ public extension WebDAV {
             guard let response = response as? HTTPURLResponse else {
                 return false
             }
-            return 200...299 ~= response.statusCode
+            return 200 ... 299 ~= response.statusCode
         } catch {
             throw WebDAVError.nsError(error)
         }
     }
-    
+
     /// 移动或重命名指定路径的文件
     /// - Parameters:
     ///   - fromPath: 源文件路径
@@ -361,7 +358,7 @@ public extension WebDAV {
         let destinationExists = try await fileExists(at: toPath)
         let sourceExists = try await fileExists(at: fromPath)
 
-       // let fromURL = self.baseURL.appendingPathComponent(fromPath)
+        // let fromURL = self.baseURL.appendingPathComponent(fromPath)
         let toURL = self.baseURL.appendingPathComponent(toPath)
 
         // 如果目标文件已经存在并且源文件不存在，直接返回成功
@@ -399,13 +396,13 @@ public extension WebDAV {
             }
 
             // 检查状态码
-            return 200...299 ~= httpResponse.statusCode
+            return 200 ... 299 ~= httpResponse.statusCode
         } catch {
             print("Request failed with error: \(error)")
             throw WebDAVError.nsError(error)
         }
     }
-    
+
     /// 使用 Head 请求检查远程 WebDAV 服务器上的文件是否存在
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
@@ -427,7 +424,7 @@ public extension WebDAV {
             return false
         }
     }
-    
+
     /// 检查远程 WebDAV 服务器上的路径是否是文件夹
     /// - Parameter path: 路径的字符串
     /// - Returns: 是否是文件夹
@@ -452,7 +449,7 @@ public extension WebDAV {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse,
-                  200...299 ~= response.statusCode
+                  200 ... 299 ~= response.statusCode
             else {
                 print("报错 \(response)")
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
@@ -464,7 +461,7 @@ public extension WebDAV {
             }
 
             let xml = XMLHash.parse(data)
-            
+
             // 获取 resourcetype 节点并检查它是否包含 <D:collection/>
             let resourceType = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:resourcetype"]
             // 处理路径以 .app 结尾的情况，强制识别为文件，不在解析，以及解析会出错
@@ -475,19 +472,19 @@ public extension WebDAV {
             // 只有在 resourcetype 中包含 <D:collection> 才返回 true
             let isDirectory = !resourceType.children.isEmpty && !resourceType["D:collection"].all.isEmpty
             return isDirectory
-            
+
 //            var isDirectory = false
 //            // 解析 <collection> 节点
 //             let resourceType = xml["multistatus"]["response"]["propstat"]["prop"]["resourcetype"]
-//             
+//
 //             // 打印 resourceType 以调试
 //             print("资源类型 XML: \(resourceType)")
-//             
+//
 //             // 判断 <collection> 节点是否存在
 //              isDirectory = resourceType["collection"].element != nil
 //             print("是否目录: \(isDirectory)")
 //              return isDirectory
-            
+
         } catch {
             throw WebDAVError.nsError(error)
         }
@@ -503,33 +500,33 @@ public extension WebDAV {
         guard var request = authorizedRequest(path: fromPath, method: .copy) else {
             throw WebDAVError.invalidCredentials
         }
-        
+
         // 确保 Destination 头部的值是相对路径
         let destinationURL = self.baseURL.appendingPathComponent(toPath).absoluteString
         request.addValue(destinationURL, forHTTPHeaderField: "Destination")
-        
+
         print("Attempting to copy file from \(fromPath) to \(destinationURL)")
         print("Request URL: \(request.url?.absoluteString ?? "Unknown")")
         print("Request Method: \(request.httpMethod ?? "Unknown")")
         print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
-        
+
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
             }
-            
+
             // 输出响应状态码
             print("Response status code: \(httpResponse.statusCode)")
-            
+
             // 输出响应数据
             if let data = try? Data(contentsOf: httpResponse.url!) {
                 let responseData = String(data: data, encoding: .utf8) ?? "No response data"
                 print("Response data: \(responseData)")
             }
-            
+
             // 检查状态码
-            return 200...299 ~= httpResponse.statusCode
+            return 200 ... 299 ~= httpResponse.statusCode
         } catch {
             print("Request failed with error: \(error)")
             throw WebDAVError.nsError(error)
@@ -552,73 +549,83 @@ public extension WebDAV {
             guard let response = response as? HTTPURLResponse else {
                 return false
             }
-            return 200...299 ~= response.statusCode
+            return 200 ... 299 ~= response.statusCode
         } catch {
             throw WebDAVError.nsError(error)
         }
     }
-    
+
     /// 下载指定路径的文件
     /// - Parameter path: 文件路径
     /// - Returns: 文件数据
     /// - Throws: WebDAVError
     func downloadFile(atPath path: String) async throws -> URL {
         // 获取授权请求
-           guard let request = authorizedRequest(path: path, method: .get) else {
-               throw WebDAVError.invalidCredentials
-           }
-           
-           // 创建 URLSession 配置（可以选择后台任务配置）
-           let configuration = URLSessionConfiguration.default
-           let session = URLSession(configuration: configuration)
-           
-           do {
-               // 使用 downloadTask 下载文件
-               let (tempDownloadURL, response) = try await session.download(for: request)
-               
-               // 检查 HTTP 响应状态码
-               guard let httpResponse = response as? HTTPURLResponse,
-                     200...299 ~= httpResponse.statusCode else {
-                   throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
-               }
-               
-               // 提取文件扩展名，首先从 path 中提取
-               let fileExtension = (path as NSString).pathExtension
-               var fileName = (path as NSString).lastPathComponent // 使用传入路径中的文件名
-            
-               // 尝试从响应头中提取文件名（Content-Disposition）
-               if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
-                  let extractedFileName = extractFileName(from: contentDisposition) {
-                   fileName = extractedFileName
-               } else if !fileExtension.isEmpty {
-                   // 如果没有 Content-Disposition, 则使用原路径中的扩展名
-                   fileName += ".\(fileExtension)"
-               }
-               
-               // 将文件保存到临时目录，带有正确的文件格式
-               let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-               
-               // 将下载的文件移动到带有正确扩展名的临时文件路径
-               try FileManager.default.moveItem(at: tempDownloadURL, to: tempURL)
-               
-               return tempURL
-           } catch {
-               throw WebDAVError.nsError(error)
-           }
+        guard let request = authorizedRequest(path: path, method: .get) else {
+            throw WebDAVError.invalidCredentials
+        }
+
+        // 创建 URLSession 配置（可以选择后台任务配置）
+        let configuration = URLSessionConfiguration.default
+        let session = URLSession(configuration: configuration)
+
+        do {
+            // 使用 downloadTask 下载文件
+            let (tempDownloadURL, response) = try await session.download(for: request)
+
+            // 检查 HTTP 响应状态码
+            guard let httpResponse = response as? HTTPURLResponse,
+                  200...299 ~= httpResponse.statusCode else {
+                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+            }
+
+            // 提取文件扩展名，首先从 path 中提取
+            let fileExtension = (path as NSString).pathExtension
+            var fileName = (path as NSString).lastPathComponent // 使用传入路径中的文件名
+
+            // 尝试从响应头中提取文件名（Content-Disposition）
+            if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
+               let extractedFileName = extractFileName(from: contentDisposition) {
+                fileName = extractedFileName
+            } else if !fileExtension.isEmpty && !fileName.hasSuffix(fileExtension) {
+                // 如果没有 Content-Disposition, 且文件名没有扩展名，则添加扩展名
+                fileName += ".\(fileExtension)"
+            }
+
+            // 将文件保存到临时目录，带有正确的文件格式
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+
+            // 检查文件是否已存在，存在则删除，避免冲突
+            if FileManager.default.fileExists(atPath: tempURL.path) {
+                try FileManager.default.removeItem(at: tempURL)
+            }
+
+            // 将下载的文件移动到带有正确扩展名的临时文件路径
+            try FileManager.default.moveItem(at: tempDownloadURL, to: tempURL)
+
+            return tempURL
+        } catch let error as NSError {
+            throw WebDAVError.nsError(error)
+        }
     }
 }
 
-func extractFileName(from contentDisposition: String) -> String? {
-    let pattern = "filename=\"([^\"]+)\""
-    let regex = try? NSRegularExpression(pattern: pattern, options: [])
-    let nsString = contentDisposition as NSString
-    let results = regex?.firstMatch(in: contentDisposition, options: [], range: NSRange(location: 0, length: nsString.length))
-    
-    if let range = results?.range(at: 1) {
-        return nsString.substring(with: range)
+/// 从 Content-Disposition 提取文件名的函数
+/// - Parameter contentDisposition: 响应头中的 Content-Disposition
+/// - Returns: 提取到的文件名
+private func extractFileName(from contentDisposition: String) -> String? {
+    let components = contentDisposition.components(separatedBy: ";")
+    for component in components {
+        let trimmed = component.trimmingCharacters(in: .whitespaces)
+        if trimmed.hasPrefix("filename=") {
+            let fileName = trimmed.replacingOccurrences(of: "filename=", with: "")
+            return fileName.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+        }
     }
     return nil
 }
+
+
 
 // 扩展 WebDAV 类以实现请求创建
 public extension WebDAV {
@@ -628,27 +635,26 @@ public extension WebDAV {
     ///   - method: HTTP 方法
     /// - Returns: 授权后的 URL 请求
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
-        // 对路径进行 URL 编码，确保特殊字符不会引发错误
-        let shouldEncode =  self.shouldEncode(path: path)
-        // 如果需要编码则进行编码
+        // 确认是否需要对路径进行 URL 编码
+        let shouldEncode = self.shouldEncode(path: path)
         let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
-            
-       // let encodedPath = path
+
         var url: URL
+
         // 如果 path 已包含 baseURL 的路径，则不要再拼接
         if encodedPath.hasPrefix(self.baseURL.path) {
-            // 直接将 path 转化为完整 URL
+            // 直接使用相对的完整路径创建 URL
             url = URL(string: encodedPath, relativeTo: self.baseURL)!
         } else {
             // 否则，将 path 作为相对路径拼接
             url = self.baseURL.appendingPathComponent(encodedPath)
         }
 
+        // 创建请求对象
         var request = URLRequest(url: url)
-        // 设置请求方式
         request.httpMethod = method.rawValue
-        // 设置超时时间
         request.timeoutInterval = self.timeoutInterval
+
         // 设置认证头部
         if let auth = self.auth {
             request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
@@ -657,14 +663,15 @@ public extension WebDAV {
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
+
+        // 针对 PROPFIND 请求设置 Depth 头部
         if method == .propfind {
             request.setValue("1", forHTTPHeaderField: "Depth")
         }
-        
+
         return request
     }
-    
-    
+
     /// - Parameters:
     ///   - path: 请求的路径
     ///   - method: HTTP 方法
@@ -699,11 +706,17 @@ public extension WebDAV {
 //        }
 //        return request
 //    }
-    
-    
+
+    /// 判断路径是否需要编码
+    /// - Parameter path: 需要检查的路径
+    /// - Returns: 是否需要编码的布尔值
     func shouldEncode(path: String) -> Bool {
-        // 仅对非 ASCII 字符且不是中文字符的部分进行编码
-        // 中文字符的 Unicode 范围是 \u4E00-\u9FFF
-        return path.range(of: "[^a-zA-Z0-9/_\\u4E00-\\u9FFF-]", options: .regularExpression) != nil
+        // 定义需要进行编码的字符范围，除了 ASCII 字母、数字、斜杠、下划线、中文字符和括号外的字符都需要编码
+        let allowedCharacterSet = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~()")
+            .union(.urlPathAllowed)
+            .union(CharacterSet(charactersIn: "\u{4E00}" ... "\u{9FFF}")) // 中文字符范围
+
+        // 如果路径中包含不在允许集合中的字符，则需要编码
+        return path.rangeOfCharacter(from: allowedCharacterSet.inverted) != nil
     }
 }
