@@ -407,13 +407,13 @@ public extension WebDAV {
     /// - Parameter url: 文件的 URL
     /// - Returns: 文件是否存在
     func fileExists(at path: String) async throws -> Bool {
-        let url = self.baseURL.appendingPathComponent(path)
-        guard let request = authorizedRequest(path: url.path, method: .head) else {
+        guard let request = authorizedRequest(path: path, method: .head) else {
             throw WebDAVError.invalidCredentials
         }
 
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
+            print("判断文件是否存在 \(response)")
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
             }
