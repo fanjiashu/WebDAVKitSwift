@@ -44,11 +44,11 @@ class ViewController: UIViewController {
 //                let status = try await webDAV.fileExists(at: "/testFolder/sample.txt")
 //                print("文件存在 \(status)")
 //                
-                let fileStatus = try await webDAV.isDirectory(atPath: "/#@$%.txt")
+                let fileStatus = try await webDAV.isDirectory(atPath: "/财会讲义(1).docx")
                 print("是否文件夹 \(fileStatus)")
             
 //                    // 下载测试并进行分享
-                let url = try await fileManager.downloadFile(atPath: "/#@$%.txt")
+                let url = try await fileManager.downloadFile(atPath: "/财会讲义(1).docx")
 //               let downloadTestData = try Data(contentsOf: url)
 //                let downloadTestFileName = "#@$%.txt"
 //                    print("下载到的资源：\(downloadTestData.count)")

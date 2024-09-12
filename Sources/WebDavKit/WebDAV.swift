@@ -583,8 +583,8 @@ public extension WebDAV {
                
                // 提取文件扩展名，首先从 path 中提取
                let fileExtension = (path as NSString).pathExtension
-               var fileName = UUID().uuidString // 默认使用 UUID 作为文件名
-               
+               var fileName = (path as NSString).lastPathComponent // 使用传入路径中的文件名
+            
                // 尝试从响应头中提取文件名（Content-Disposition）
                if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
                   let extractedFileName = extractFileName(from: contentDisposition) {
