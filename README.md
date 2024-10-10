@@ -97,6 +97,26 @@ import WebDAVKitSwift
 // 示例：初始化 WebDAV 客户端并执行操作
 let webDAVClient = WebDAVClient(baseURL: "https://你的.webdav.server.com")
 // 在此处添加您的 WebDAV 操作
+
+1.4.0 增加socks5加速
+// 配置 Socks5 代理
+Socks5ProxyManager.shared.configureProxy(host: "127.0.0.1", port: 1080)
+
+// 开启代理
+Socks5ProxyManager.shared.enableProxy()
+
+// 执行 WebDAV 操作，例如创建文件夹
+let webDAV = WebDAV()
+do {
+    let success = try await webDAV.createFolder(atPath: "/path/to/folder")
+    print("Folder created: \(success)")
+} catch {
+    print("Error creating folder: \(error)")
+}
+
+// 关闭代理
+Socks5ProxyManager.shared.disableProxy()
+
 ```
 
 ### 示例操作
