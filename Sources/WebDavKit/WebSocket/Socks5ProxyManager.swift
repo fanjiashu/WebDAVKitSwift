@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Socks5ProxyManager {
+public class Socks5ProxyManager {
     static let shared = Socks5ProxyManager()
 
     private var proxyHost: String?
