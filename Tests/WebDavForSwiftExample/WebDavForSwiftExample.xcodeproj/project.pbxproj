@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		04D272742CB7BD4700E6CD37 /* WebSocketProxyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D272732CB7BD4600E6CD37 /* WebSocketProxyManager.swift */; };
+		04D272762CB7C6C300E6CD37 /* Socks5ProxyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D272752CB7C6C300E6CD37 /* Socks5ProxyManager.swift */; };
 		04FD3CA02C759E0B0035D186 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */; };
 		04FD3CA22C759E0B0035D186 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */; };
 		04FD3CA42C759E0B0035D186 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FD3CA32C759E0B0035D186 /* ViewController.swift */; };
@@ -44,7 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		04D272732CB7BD4600E6CD37 /* WebSocketProxyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketProxyManager.swift; sourceTree = "<group>"; };
+		04D272752CB7C6C300E6CD37 /* Socks5ProxyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5ProxyManager.swift; sourceTree = "<group>"; };
 		04FD3C9C2C759E0B0035D186 /* WebDavForSwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebDavForSwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04FD3C9F2C759E0B0035D186 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		04FD3CA12C759E0B0035D186 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -95,7 +95,7 @@
 		04D272722CB7BD3500E6CD37 /* WebSocket */ = {
 			isa = PBXGroup;
 			children = (
-				04D272732CB7BD4600E6CD37 /* WebSocketProxyManager.swift */,
+				04D272752CB7C6C300E6CD37 /* Socks5ProxyManager.swift */,
 			);
 			path = WebSocket;
 			sourceTree = "<group>";
@@ -308,9 +308,9 @@
 				04FD3CA42C759E0B0035D186 /* ViewController.swift in Sources */,
 				04FD3CE92C75AC320035D186 /* WebDAV+Image.swift in Sources */,
 				04FD3CE82C75AC320035D186 /* WebDAV.swift in Sources */,
+				04D272762CB7C6C300E6CD37 /* Socks5ProxyManager.swift in Sources */,
 				04FD3CA02C759E0B0035D186 /* AppDelegate.swift in Sources */,
 				04FD3CE72C75AC320035D186 /* HTTPMethod.swift in Sources */,
-				04D272742CB7BD4700E6CD37 /* WebSocketProxyManager.swift in Sources */,
 				04FD3CEB2C75AC320035D186 /* WebDAVFile.swift in Sources */,
 				04FD3CA22C759E0B0035D186 /* SceneDelegate.swift in Sources */,
 				04FD3CEA2C75AC320035D186 /* WebDAVError.swift in Sources */,

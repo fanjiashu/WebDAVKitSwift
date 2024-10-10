@@ -20,23 +20,23 @@ class ViewController: UIViewController {
         
        // WAD测试：URL = https://file.jxl888.heiyu.space/_lzc/files/home, toekn = a49b4c55-4f15-415e-8674-c4e6364bb06a
         //WAD测试：URL = https://file.workspace.heiyu.space/_lzc/files/home, toekn = 98a07f2a-01c3-4b21-8f4f-566093e00fa1
-         let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
+         //let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
+        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "Lzc-Auth-Token=62ac4237-5341-45c0-9cfd-c47a574de1f0")
         print("Base URL: \(webDAV.baseURL)")
 
         let fileManager = WebDAVFileManager(webDAV: webDAV)
 
         Task {
             do {
-                print("开始连接")
                 let webDAVTitle = "测试WebDAV的打印"
 
 //                // 检查连接状态
-//                let isConnected = try await fileManager.checkLinkStatus()
-//                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
-                let files = try await fileManager.listFiles(atPath: "/下载")
-//                for (index, file) in files.enumerated() {
-//                    print("/：文件\(file.path)有\(String(describing: file.childItemCount)) 个文件")
-//                }
+                let isConnected = try await fileManager.checkLinkStatus()
+                print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
+               let files = try await fileManager.listFiles(atPath: "/下载")
+                for (index, file) in files.enumerated() {
+                    print("/：文件\(file.path)有\(String(describing: file.childItemCount)) 个文件")
+                }
 ////                files = try await fileManager.listFiles(atPath: "/Test/Text")
 //                for (index, file) in files.enumerated() {
 //                    print("/Test/Text路径下：第\(index)文件是：\(file)")
@@ -45,11 +45,21 @@ class ViewController: UIViewController {
 //                let status = try await webDAV.fileExists(at: "/testFolder/sample.txt")
 //                print("文件存在 \(status)")
 //                
-                let fileStatus = try await webDAV.isDirectory(atPath: "/下载")
-                print("是否文件夹 \(fileStatus)")
-            
+               // let test_path = "/#@$%.txt"
+               // let test_path = "/财会讲义(1).docx"
+               // let test_path = "#济高等数学第六版下册习题全解指南-25.pdf"
+               // let test_path = "/通讯录.xls"
+               // let test_path = "/所有“iCloud”.vcf"
+//                let test_path = "/RPReplay_Final1723533092 (1).MP4"
+//               // let test_path = "/下载"
+//                
+//                let fileStatus = try await webDAV.isDirectory(atPath: test_path)
+//                print("是否文件夹 \(fileStatus)")
+//                
+//                let isExti = try await webDAV.fileExists(at: test_path)
+//                print("是否存在 \(isExti)")
 //                    // 下载测试并进行分享
-//                let url = try await fileManager.downloadFile(atPath: "/通讯录.xls")
+ //               let url = try await fileManager.downloadFile(atPath: test_path)
 //               let downloadTestData = try Data(contentsOf: url)
 //                let downloadTestFileName = "#@$%.txt"
 //                    print("下载到的资源：\(downloadTestData.count)")
