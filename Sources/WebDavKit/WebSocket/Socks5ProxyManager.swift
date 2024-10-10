@@ -8,7 +8,7 @@
 import Foundation
 
 public class Socks5ProxyManager {
-    static let shared = Socks5ProxyManager()
+    public static let shared = Socks5ProxyManager()
 
     private var proxyHost: String?
     private var proxyPort: Int?
@@ -17,13 +17,13 @@ public class Socks5ProxyManager {
     private init() {}
 
     /// 配置 Socks5 代理
-    func configureProxy(host: String, port: Int) {
+    public  func configureProxy(host: String, port: Int) {
         self.proxyHost = host
         self.proxyPort = port
     }
 
     /// 开启 Socks5 代理
-    func enableProxy() {
+    public func enableProxy() {
         guard proxyHost != nil, proxyPort != nil else {
             print("Socks5 proxy not configured.")
             return
@@ -32,17 +32,17 @@ public class Socks5ProxyManager {
     }
 
     /// 关闭 Socks5 代理
-    func disableProxy() {
+    public func disableProxy() {
         isProxyEnabled = false
     }
 
     /// 判断代理是否启用
-    func isProxyActive() -> Bool {
+    public func isProxyActive() -> Bool {
         return isProxyEnabled
     }
 
     /// 获取代理配置的 URLSession 配置
-    func getProxySessionConfiguration() -> URLSessionConfiguration? {
+    public func getProxySessionConfiguration() -> URLSessionConfiguration? {
         guard let proxyHost = proxyHost, let proxyPort = proxyPort else {
             return nil
         }
