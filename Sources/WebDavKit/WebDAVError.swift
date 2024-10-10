@@ -24,6 +24,9 @@ public enum WebDAVError: Error {
     case connectionLost
     /// 无效的响应 Webscoket专用
     case invalidResponse
+    /// 代理配置错误
+    case proxyConfigurationError(String)
+    
     static func getError(statusCode: Int?, error: Error?) -> WebDAVError? {
         if let statusCode = statusCode {
             switch statusCode {

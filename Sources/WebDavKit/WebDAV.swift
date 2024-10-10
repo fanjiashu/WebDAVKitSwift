@@ -192,7 +192,7 @@ public extension WebDAV {
         request.httpBody = body.data(using: .utf8)
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await sendRequest(request)
             guard let response = response as? HTTPURLResponse,
                   200 ... 299 ~= response.statusCode
             else {
@@ -276,7 +276,7 @@ public extension WebDAV {
         request.httpBody = body.data(using: .utf8)
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await sendRequest(request)
             guard let response = response as? HTTPURLResponse,
                   200 ... 299 ~= response.statusCode
             else {
@@ -318,7 +318,7 @@ public extension WebDAV {
             throw WebDAVError.invalidCredentials
         }
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await sendRequest(request)
             guard let response = response as? HTTPURLResponse else {
                 return false
             }
@@ -381,7 +381,7 @@ public extension WebDAV {
         print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await sendRequest(request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
             }
@@ -412,7 +412,7 @@ public extension WebDAV {
         }
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await sendRequest(request)
             print("判断文件是否存在 \(response)")
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
@@ -447,7 +447,7 @@ public extension WebDAV {
         request.setValue("0", forHTTPHeaderField: "Depth") // 只检查当前资源
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await sendRequest(request)
             guard let response = response as? HTTPURLResponse,
                   200 ... 299 ~= response.statusCode
             else {
@@ -511,7 +511,7 @@ public extension WebDAV {
         print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await sendRequest(request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 return false
             }
@@ -545,7 +545,7 @@ public extension WebDAV {
         }
         request.httpBody = data
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await sendRequest(request)
             guard let response = response as? HTTPURLResponse else {
                 return false
             }
@@ -571,7 +571,7 @@ public extension WebDAV {
 
         do {
             // 使用 downloadTask 下载文件
-            let (tempDownloadURL, response) = try await session.download(for: request)
+            let (tempDownloadURL, response) = try await downloadRequest(request)
 
             // 检查 HTTP 响应状态码
             guard let httpResponse = response as? HTTPURLResponse,
@@ -606,6 +606,40 @@ public extension WebDAV {
             return tempURL
         } catch let error as NSError {
             throw WebDAVError.nsError(error)
+        }
+    }
+    
+    
+    
+    /// 统一的发送请求方法
+        private func sendRequest(_ request: URLRequest) async throws -> (Data, URLResponse) {
+            if Socks5ProxyManager.shared.isProxyActive() {
+                // 使用 Socks5 代理的 URLSession 配置
+                guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
+                    throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
+                }
+                let proxySession = URLSession(configuration: proxyConfig)
+                return try await proxySession.data(for: request)
+            } else {
+                // 使用默认的 URLSession
+                return try await URLSession.shared.data(for: request)
+            }
+        }
+    
+    
+    /// 统一的下载请求方法
+    private func downloadRequest(_ request: URLRequest) async throws -> (URL, URLResponse) {
+        // 根据代理是否开启，选择不同的 URLSession
+        if Socks5ProxyManager.shared.isProxyActive() {
+            // 使用 Socks5 代理的 URLSession 配置
+            guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
+                throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
+            }
+            let proxySession = URLSession(configuration: proxyConfig)
+            return try await proxySession.download(for: request)
+        } else {
+            // 使用默认的 URLSession
+            return try await URLSession.shared.download(for: request)
         }
     }
 }

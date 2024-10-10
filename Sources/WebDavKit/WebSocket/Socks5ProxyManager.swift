@@ -50,8 +50,12 @@ class Socks5ProxyManager {
         // 创建代理配置
         let config = URLSessionConfiguration.default
         config.connectionProxyDictionary = [
-            kCFNetworkProxiesSOCKSProxy: proxyHost,
-            kCFNetworkProxiesSOCKSPort: proxyPort
+            "HTTPEnable": 1,
+            "HTTPProxy": proxyHost,
+            "HTTPPort": proxyPort,
+            "HTTPSEnable": 1,
+            "HTTPSProxy": proxyHost,
+            "HTTPSPort": proxyPort
         ]
         return config
     }
