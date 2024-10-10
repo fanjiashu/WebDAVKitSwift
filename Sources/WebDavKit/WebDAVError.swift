@@ -7,20 +7,23 @@
 import Foundation
 
 public enum WebDAVError: Error {
-    /// The credentials or path were unable to be encoded.
-    /// No network request was called.
+    ///无法对凭证或路径进行编码。
+    ///没有网络请求被调用
     case invalidCredentials
     /// 凭证不正确。
     case unauthorized
     /// 服务器无法存储所提供的数据。
     case insufficientStorage
-    /// The server does not support this feature.
+    /// 服务器不支持此特性。
     case unsupported
-    /// Another unspecified Error occurred.
+    /// 发生另一个未指定的错误。
     case nsError(Error)
-    /// The returned value is simply a placeholder.
+    /// 返回值只是一个占位符。
     case placeholder
-
+    /// 断开与服务器的链接 Webscoket专用
+    case connectionLost
+    /// 无效的响应 Webscoket专用
+    case invalidResponse
     static func getError(statusCode: Int?, error: Error?) -> WebDAVError? {
         if let statusCode = statusCode {
             switch statusCode {
