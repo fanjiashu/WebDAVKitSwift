@@ -21,7 +21,8 @@ class ViewController: UIViewController {
        // WAD测试：URL = https://file.jxl888.heiyu.space/_lzc/files/home, toekn = a49b4c55-4f15-415e-8674-c4e6364bb06a
         //WAD测试：URL = https://file.workspace.heiyu.space/_lzc/files/home, toekn = 98a07f2a-01c3-4b21-8f4f-566093e00fa1
          //let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
-        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "Lzc-Auth-Token=62ac4237-5341-45c0-9cfd-c47a574de1f0")
+        //WADæµè¯ï¼URL = https://file.workspace.heiyu.space/_lzc/files/home, lzc-auth = Lzc-Auth-Token=f3093f1f-1770-43f3-8057-538353777a34
+        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "Lzc-Auth-Token=f3093f1f-1770-43f3-8057-538353777a34")
         print("Base URL: \(webDAV.baseURL)")
 
         let fileManager = WebDAVFileManager(webDAV: webDAV)
@@ -29,14 +30,23 @@ class ViewController: UIViewController {
         Task {
             do {
                 let webDAVTitle = "测试WebDAV的打印"
+                
+                //开启scocks5 代理加速
+                // 配置 SOCKS5 代理
+                Socks5ProxyManager.shared.configureProxy(host: "127.0.0.1", port: 49159)
+                // 开启 SOCKS5 代理
+                Socks5ProxyManager.shared.enableProxy()
 
 //                // 检查连接状态
                 let isConnected = try await fileManager.checkLinkStatus()
                 print("\(webDAVTitle) WebDAV connection status: \(isConnected)")
-               let files = try await fileManager.listFiles(atPath: "/下载")
-                for (index, file) in files.enumerated() {
-                    print("/：文件\(file.path)有\(String(describing: file.childItemCount)) 个文件")
-                }
+                
+                
+                
+//               let files = try await fileManager.listFiles(atPath: "/下载")
+//                for (index, file) in files.enumerated() {
+//                    print("/：文件\(file.path)有\(String(describing: file.childItemCount)) 个文件")
+//                }
 ////                files = try await fileManager.listFiles(atPath: "/Test/Text")
 //                for (index, file) in files.enumerated() {
 //                    print("/Test/Text路径下：第\(index)文件是：\(file)")

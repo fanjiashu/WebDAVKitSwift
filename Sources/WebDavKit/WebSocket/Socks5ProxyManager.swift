@@ -42,21 +42,16 @@ public class Socks5ProxyManager {
     }
 
     /// 获取代理配置的 URLSession 配置
-    public func getProxySessionConfiguration() -> URLSessionConfiguration? {
-        guard let proxyHost = proxyHost, let proxyPort = proxyPort else {
-            return nil
-        }
-
-        // 创建代理配置
-        let config = URLSessionConfiguration.default
-        config.connectionProxyDictionary = [
-            "HTTPEnable": 1,
-            "HTTPProxy": proxyHost,
-            "HTTPPort": proxyPort,
-            "HTTPSEnable": 1,
-            "HTTPSProxy": proxyHost,
-            "HTTPSPort": proxyPort
+    func getProxySessionConfiguration() -> URLSessionConfiguration? {
+        let configuration = URLSessionConfiguration.default
+        // 代理设置
+        let proxyDict: [String: Any] = [
+            "SOCKSEnable": 1,
+            "SOCKSProxy": self.proxyHost ?? "代理地址", // SOCKS5代理地址
+            "SOCKSPort": self.proxyPort ?? 1080 // SOCKS5端口
         ]
-        return config
+        // 这里配置 SOCKS 代理
+        configuration.connectionProxyDictionary = proxyDict
+        return configuration
     }
 }
