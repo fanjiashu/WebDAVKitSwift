@@ -630,22 +630,28 @@ public extension WebDAV {
     
     /// 统一的下载请求方法
     private func downloadRequest(_ request: URLRequest) async throws -> (URL, URLResponse) {
-        // 获取当前系统版本
-           if #available(macOS 12.0, *) {
-               // macOS 12 及以上版本，根据代理是否开启，选择不同的 URLSession
-               if Socks5ProxyManager.shared.isProxyActive() {
-                   guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
-                       throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
-                   }
-                   let proxySession = URLSession(configuration: proxyConfig)
-                   return try await proxySession.download(for: request)
-               } else {
-                   return try await URLSession.shared.download(for: request)
-               }
-           } else {
-               // macOS 12 以下版本，直接使用默认的 URLSession
-               return try await URLSession.shared.download(for: request)
-           }
+        // 获取当前的 macOS 系统版本
+        if #available(macOS 12.0, *) {
+            // 根据代理是否开启，选择不同的 URLSession
+            if Socks5ProxyManager.shared.isProxyActive() {
+                // 使用 Socks5 代理的 URLSession 配置
+                guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
+                    throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
+                }
+                let proxySession = URLSession(configuration: proxyConfig)
+                return try await proxySession.download(for: request)
+            } else {
+                // 使用默认的 URLSession
+                return try await URLSession.shared.download(for: request)
+            }
+        } else {
+            // macOS 12 以下的处理方式
+            let (data, response) = try await URLSession.shared.data(for: request)
+            // 将数据写入临时文件以模拟下载行为
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try data.write(to: tempURL)
+            return (tempURL, response)
+        }
     }
 }
 
