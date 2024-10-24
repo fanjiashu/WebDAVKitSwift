@@ -5,7 +5,7 @@ let package = Package(
     name: "WebDavKit",
     platforms: [
         .iOS(.v15),
-        .macOS(.v12)
+        .macOS(.v11)
     ],
     products: [
         .library(
