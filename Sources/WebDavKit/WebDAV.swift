@@ -220,35 +220,6 @@ public extension WebDAV {
             }
             let sortFiles = WebDAV.sortedFiles(files, foldersFirst: foldersFirst, includeSelf: includeSelf)
             return sortFiles
-//            // 使用并发请求来获取每个文件夹的子文件数量
-//            let childCounts = try await withThrowingTaskGroup(of: (Int, Int).self) { group in
-//                for (index, file) in sortFiles.enumerated() {
-//                    if file.isDirectory {
-//                        group.addTask {
-//                            let count = try await self.fetchChildItemCount(for: file.path)
-//                            return (index, count) // 返回文件的索引和子文件数量
-//                        }
-//                    }
-//                }
-//
-//                var counts = Array(repeating: 0, count: sortFiles.count)
-//                for try await (index, count) in group {
-//                    counts[index] = count // 根据索引将数量存储到对应位置
-//                }
-//                return counts
-//            }
-//
-//            let childItemCounts = childCounts
-//            // 将子文件数量整合到文件对象中
-//            let updatedFiles = sortFiles.enumerated().map { index, file -> WebDAVFile in
-//                var mutableFile = file
-//                if mutableFile.isDirectory {
-//                    mutableFile.childItemCount = childItemCounts[index]
-//                }
-//                return mutableFile
-//            }
-//
-//            return updatedFiles
         } catch {
             throw WebDAVError.nsError(error)
         }
@@ -564,11 +535,6 @@ public extension WebDAV {
         guard let request = authorizedRequest(path: path, method: .get) else {
             throw WebDAVError.invalidCredentials
         }
-
-        // 创建 URLSession 配置（可以选择后台任务配置）
-        let configuration = URLSessionConfiguration.default
-        let session = URLSession(configuration: configuration)
-
         do {
             // 使用 downloadTask 下载文件
             let (tempDownloadURL, response) = try await downloadRequest(request)
@@ -626,9 +592,7 @@ public extension WebDAV {
             }
         }
     
-    
-    
-    /// 统一的下载请求方法
+    /// 统一的下载请求方法，带有重试机制
     private func downloadRequest(_ request: URLRequest) async throws -> (URL, URLResponse) {
         // 获取当前的 macOS 系统版本
         if #available(macOS 12.0, *) {
@@ -639,9 +603,38 @@ public extension WebDAV {
                     throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
                 }
                 let proxySession = URLSession(configuration: proxyConfig)
-                return try await proxySession.download(for: request)
+
+                // 设置最大重试次数
+                let maxRetryAttempts = 3
+                var lastError: Error?
+                
+                // 重试循环
+                for attempt in 1...maxRetryAttempts {
+                    do {
+                        print("正式开始代理下载，尝试 \(attempt)/\(maxRetryAttempts)")
+                        // 尝试代理下载
+                        return try await proxySession.download(for: request)
+                    } catch {
+                        lastError = error
+                        print("下载失败，第 \(attempt) 次重试，错误: \(error.localizedDescription)")
+                        
+                        if attempt < maxRetryAttempts {
+                            // 如果还没有达到最大重试次数，等待一段时间再重试
+                            try await Task.sleep(nanoseconds: 1_000_000_000)  // 1 秒重试
+                        }
+                    }
+                }
+                
+                // 如果所有尝试都失败，抛出最后一次错误
+                if let error = lastError {
+                    throw error
+                } else {
+                    throw WebDAVError.proxyConfigurationError("代理下载失败，没有可用的重试。")
+                }
+
             } else {
                 // 使用默认的 URLSession
+                print("不走代理")
                 return try await URLSession.shared.download(for: request)
             }
         } else {
@@ -653,6 +646,164 @@ public extension WebDAV {
             return (tempURL, response)
         }
     }
+    
+    //Socks5请求预热
+    func probeProxyConnection(session: URLSession, proxyRequest: URLRequest) async -> Bool {
+        var request = proxyRequest
+        request.httpMethod = "HEAD" // 设置请求方法为 HEAD
+        request.timeoutInterval = 1.0 // 设置请求超时为5秒
+        do {
+            let (_, response) = try await session.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 200 {
+                    print("Proxy is responsive")
+                    return true
+                } else {
+                    print("Received non-200 status code: \(httpResponse.statusCode)")
+                }
+            }
+        } catch {
+            print("Probe failed: \(error.localizedDescription)")
+        }
+        return false
+    }
+    
+    
+    
+    
+    // 封装获取子文件的第一个文件方法
+    func fetchFirstChildFile(for path: String) async throws -> WebDAVFile? {
+        guard var request = authorizedRequest(path: path, method: .propfind) else {
+            throw WebDAVError.invalidCredentials
+        }
+
+        // 设置 PROPFIND 请求的 body
+        let body =
+            """
+            <?xml version="1.0" encoding="utf-8" ?>
+            <D:propfind xmlns:D="DAV:">
+                <D:prop>
+                    <D:getcontentlength/>
+                    <D:getlastmodified/>
+                    <D:getcontenttype/>
+                    <D:resourcetype/>
+                </D:prop>
+            </D:propfind>
+            """
+        request.httpBody = body.data(using: .utf8)
+
+        do {
+            let (data, response) = try await sendRequest(request)
+            guard let response = response as? HTTPURLResponse, (200 ... 299).contains(response.statusCode) else {
+                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+            }
+
+            // 打印原始 XML 响应（调试时可启用）
+            if let xmlString = String(data: data, encoding: .utf8) {
+                // print("Received XML: \(xmlString)")
+            }
+
+            let xml = XMLHash.config { config in
+                config.shouldProcessNamespaces = true
+            }.parse(String(data: data, encoding: .utf8) ?? "")
+
+            // 提取 WebDAV 文件信息
+            let files = xml["multistatus"]["response"].all.compactMap {
+                WebDAVFile(
+                    xml: $0,
+                    baseURL: self.baseURL,
+                    auth: self.auth,
+                    cookie: self.cookie
+                )
+            }
+
+            // 按规则排序文件，优先返回第一个文件
+            let sortedFiles = WebDAV.sortedFiles(files, foldersFirst: true, includeSelf: false)
+
+            // 返回排序后的第一个文件
+            return sortedFiles.first
+        } catch {
+            throw WebDAVError.nsError(error)
+        }
+    }
+    
+    
+    func chunkedDownload(webDAVFile: WebDAVFile, chunkSize: Int = 5 * 1024 * 1024, request: URLRequest) async throws -> (URL, URLResponse) {
+        let totalSize = Int(webDAVFile.size)
+        print("文件总大小: \(totalSize) 字节")
+        
+        // 分块计算
+        var chunks: [(start: Int, end: Int)] = []
+        var start = 0
+        while start < totalSize {
+            let end = min(start + chunkSize - 1, totalSize - 1)
+            chunks.append((start, end))
+            start = end + 1
+        }
+        print("分块数量: \(chunks.count)")
+
+        // 创建临时文件
+        let tempFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        FileManager.default.createFile(atPath: tempFileURL.path, contents: nil, attributes: nil)
+        let fileHandle = try FileHandle(forWritingTo: tempFileURL)
+        
+        // 用于保存最后一个分块的响应（URLResponse）
+        var finalResponse: URLResponse?
+        
+        // 创建并发下载任务
+        var session = URLSession.shared
+        
+        if Socks5ProxyManager.shared.isProxyActive() {
+            session = URLSession(configuration: Socks5ProxyManager.shared.getProxySessionConfiguration()!)
+        }
+        
+        let maxConcurrentDownloads = 40 // 控制并发请求数，避免过多的并发请求影响性能
+        var currentIndex = 0
+        // 异步并发下载每个分块
+        while currentIndex < chunks.count {
+            let remainingChunks = chunks[currentIndex..<min(currentIndex + maxConcurrentDownloads, chunks.count)]
+            let downloadTasks = remainingChunks.map { chunk -> Task<Void, Never> in
+                Task {
+                    do {
+                        var rangeRequest = request
+                        rangeRequest.setValue("bytes=\(chunk.start)-\(chunk.end)", forHTTPHeaderField: "Range")
+                        
+                        print("正在下载分块 \(currentIndex + 1)/\(chunks.count), 范围: \(chunk.start)-\(chunk.end)")
+                        
+                        // 下载分块并写入文件
+                        let (chunkData, response) = try await session.data(for: rangeRequest)
+                        fileHandle.seek(toFileOffset: UInt64(chunk.start))
+                        fileHandle.write(chunkData)
+                        finalResponse = response // 保存最后一个分块的响应
+                    } catch {
+                        print("下载分块失败: \(chunk.start)-\(chunk.end), 错误: \(error)")
+                        // 可选择增加重试机制，这里简化处理
+                    }
+                }
+            }
+            
+            // 等待当前批次下载完成
+            await withTaskGroup(of: Void.self) { group in
+                for task in downloadTasks {
+                    group.addTask {
+                        await task.value
+                    }
+                }
+            }
+            
+            // 更新当前索引，开始下一个批次
+            currentIndex += maxConcurrentDownloads
+        }
+        
+        // 确保文件写入完成后返回有效的响应
+        fileHandle.closeFile()
+        guard let finalResponse = finalResponse else {
+            throw WebDAVError.unsupported
+        }
+        
+        return (tempFileURL, finalResponse)
+    }
+
 }
 
 /// 从 Content-Disposition 提取文件名的函数
