@@ -24,16 +24,15 @@ public class Socks5ProxyManager {
     
     /// 开启 Socks5 代理 ---当前这个仅支持mac
     public func enableProxy() {
-//#if os(macOS)
-//        guard proxyHost != nil, proxyPort != nil else {
-//            print("Socks5 proxy not configured.")
-//            return
-//        }
-//        isProxyEnabled = true
-//#else
-//        isProxyEnabled = false
-//#endif
+#if os(macOS)
+        guard proxyHost != nil, proxyPort != nil else {
+            print("Socks5 proxy not configured.")
+            return
+        }
         isProxyEnabled = true
+#else
+        isProxyEnabled = false
+#endif
     }
     
     /// 关闭 Socks5 代理
