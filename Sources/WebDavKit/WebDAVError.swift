@@ -26,6 +26,8 @@ public enum WebDAVError: Error {
     case invalidResponse
     /// 代理配置错误
     case proxyConfigurationError(String)
+    /// 下载失败错误
+    case downloadUnsupported(String)
     
     static func getError(statusCode: Int?, error: Error?) -> WebDAVError? {
         if let statusCode = statusCode {

@@ -527,21 +527,24 @@ public extension WebDAV {
     }
 
     /// 下载指定路径的文件
-    /// - Parameter path: 文件路径
-    /// - Returns: 文件数据
+    /// - Parameters:
+    ///   - path: 文件路径
+    ///   - useStream: 是否使用流式下载
+    /// - Returns: 下载后的文件的临时 URL
     /// - Throws: WebDAVError
-    func downloadFile(atPath path: String) async throws -> URL {
+    func downloadFile(atPath path: String, useStream: Bool = false) async throws -> URL {
         // 获取授权请求
         guard let request = authorizedRequest(path: path, method: .get) else {
             throw WebDAVError.invalidCredentials
         }
         do {
-            // 使用 downloadTask 下载文件
-            let (tempDownloadURL, response) = try await downloadRequest(request)
+            // 使用下载请求方法，根据 `useStream` 参数选择是否流式下载
+            let (tempDownloadURL, response) = try await downloadRequest(request, useStream: useStream)
 
             // 检查 HTTP 响应状态码
             guard let httpResponse = response as? HTTPURLResponse,
-                  200...299 ~= httpResponse.statusCode else {
+                  200 ... 299 ~= httpResponse.statusCode
+            else {
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
             }
 
@@ -551,7 +554,8 @@ public extension WebDAV {
 
             // 尝试从响应头中提取文件名（Content-Disposition）
             if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
-               let extractedFileName = extractFileName(from: contentDisposition) {
+               let extractedFileName = extractFileName(from: contentDisposition)
+            {
                 fileName = extractedFileName
             } else if !fileExtension.isEmpty && !fileName.hasSuffix(fileExtension) {
                 // 如果没有 Content-Disposition, 且文件名没有扩展名，则添加扩展名
@@ -574,103 +578,131 @@ public extension WebDAV {
             throw WebDAVError.nsError(error)
         }
     }
-    
-    
-    
+
     /// 统一的发送请求方法
-        private func sendRequest(_ request: URLRequest) async throws -> (Data, URLResponse) {
+    private func sendRequest(_ request: URLRequest) async throws -> (Data, URLResponse) {
+        if Socks5ProxyManager.shared.isProxyActive() {
+            // 使用 Socks5 代理的 URLSession 配置
+            guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
+                throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
+            }
+            let proxySession = URLSession(configuration: proxyConfig)
+            return try await proxySession.data(for: request)
+        } else {
+            // 使用默认的 URLSession
+            return try await URLSession.shared.data(for: request)
+        }
+    }
+
+    /// 统一的下载请求方法，带有重试机制
+    private func downloadRequest(_ request: URLRequest, useStream: Bool = false) async throws -> (URL, URLResponse) {
+        // 平台和版本检查
+        if #available(iOS 15.0, macOS 12.0, *) {
+            let session: URLSession
             if Socks5ProxyManager.shared.isProxyActive() {
                 // 使用 Socks5 代理的 URLSession 配置
                 guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
                     throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
                 }
-                let proxySession = URLSession(configuration: proxyConfig)
-                return try await proxySession.data(for: request)
+                session = URLSession(configuration: proxyConfig)
             } else {
                 // 使用默认的 URLSession
-                return try await URLSession.shared.data(for: request)
+                session = URLSession.shared
             }
-        }
-    
-    /// 统一的下载请求方法，带有重试机制
-    private func downloadRequest(_ request: URLRequest) async throws -> (URL, URLResponse) {
-        // 获取当前的 macOS 系统版本
-        if #available(macOS 12.0, *) {
-            // 根据代理是否开启，选择不同的 URLSession
-            if Socks5ProxyManager.shared.isProxyActive() {
-                // 使用 Socks5 代理的 URLSession 配置
-                guard let proxyConfig = Socks5ProxyManager.shared.getProxySessionConfiguration() else {
-                    throw WebDAVError.proxyConfigurationError("Invalid proxy configuration.")
-                }
-                let proxySession = URLSession(configuration: proxyConfig)
 
-                // 设置最大重试次数
-                let maxRetryAttempts = 3
-                var lastError: Error?
-                
-                // 重试循环
-                for attempt in 1...maxRetryAttempts {
-                    do {
-                        print("正式开始代理下载，尝试 \(attempt)/\(maxRetryAttempts)")
-                        // 尝试代理下载
-                        return try await proxySession.download(for: request)
-                    } catch {
-                        lastError = error
-                        print("下载失败，第 \(attempt) 次重试，错误: \(error.localizedDescription)")
-                        
-                        if attempt < maxRetryAttempts {
-                            // 如果还没有达到最大重试次数，等待一段时间再重试
-                            try await Task.sleep(nanoseconds: 1_000_000_000)  // 1 秒重试
-                        }
+            let maxRetryAttempts = 3
+            var lastError: Error?
+
+            for attempt in 1 ... maxRetryAttempts {
+                do {
+                    print("正式开始下载，尝试 \(attempt)/\(maxRetryAttempts)")
+
+                    if useStream {
+                        return try await streamDownload(using: session, for: request)
+                    } else {
+                        return try await session.download(for: request)
+                    }
+                } catch {
+                    lastError = error
+                    print("下载失败，第 \(attempt) 次重试，错误: \(error.localizedDescription)")
+
+                    if attempt < maxRetryAttempts {
+                        try await Task.sleep(nanoseconds: 1000000000) // 1 秒重试
                     }
                 }
-                
-                // 如果所有尝试都失败，抛出最后一次错误
-                if let error = lastError {
-                    throw error
-                } else {
-                    throw WebDAVError.proxyConfigurationError("代理下载失败，没有可用的重试。")
-                }
-
-            } else {
-                // 使用默认的 URLSession
-                print("不走代理")
-                return try await URLSession.shared.download(for: request)
             }
+
+            if let error = lastError {
+                throw error
+            } else {
+                throw WebDAVError.proxyConfigurationError("下载失败，没有可用的重试。")
+            }
+
         } else {
-            // macOS 12 以下的处理方式
+            // iOS 15/macOS 12 以下的处理方式
             let (data, response) = try await URLSession.shared.data(for: request)
-            // 将数据写入临时文件以模拟下载行为
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             try data.write(to: tempURL)
             return (tempURL, response)
         }
     }
-    
-    //Socks5请求预热
-    func probeProxyConnection(session: URLSession, proxyRequest: URLRequest) async -> Bool {
-        var request = proxyRequest
-        request.httpMethod = "HEAD" // 设置请求方法为 HEAD
-        request.timeoutInterval = 1.0 // 设置请求超时为5秒
-        do {
-            let (_, response) = try await session.data(for: request)
-            if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode == 200 {
-                    print("Proxy is responsive")
-                    return true
-                } else {
-                    print("Received non-200 status code: \(httpResponse.statusCode)")
+
+    @available(iOS 15.0, macOS 12.0, *)
+    private func streamDownload(using session: URLSession, for request: URLRequest) async throws -> (URL, URLResponse) {
+        // 临时文件路径，用于存储流式下载的数据
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let (bytes, response) = try await session.bytes(for: request)
+        let outputStream = OutputStream(url: tempURL, append: false)!
+        outputStream.open()
+
+        // 缓冲区大小（根据需要调整）
+        let bufferSize = 1024 * 1024 // 1 MB
+        var buffer = Data(capacity: bufferSize)
+
+        for try await byte in bytes {
+            buffer.append(byte)
+            if buffer.count >= bufferSize {
+                let writtenBytes = buffer.withUnsafeBytes { outputStream.write($0, maxLength: buffer.count) }
+                if writtenBytes < 0 {
+                    throw WebDAVError.downloadUnsupported("Failed to write data to output stream.")
                 }
+                buffer.removeAll()
             }
-        } catch {
-            print("Probe failed: \(error.localizedDescription)")
         }
-        return false
+
+        // 写入剩余数据
+        if !buffer.isEmpty {
+            let writtenBytes = buffer.withUnsafeBytes { outputStream.write($0, maxLength: buffer.count) }
+            if writtenBytes < 0 {
+                throw WebDAVError.downloadUnsupported("Failed to write remaining data to output stream.")
+            }
+        }
+        outputStream.close()
+        return (tempURL, response)
     }
-    
-    
-    
-    
+
+//    //Socks5请求预热
+//    func probeProxyConnection(session: URLSession, proxyRequest: URLRequest) async -> Bool {
+//        var request = proxyRequest
+//        request.httpMethod = "HEAD" // 设置请求方法为 HEAD
+//        request.timeoutInterval = 1.0 // 设置请求超时为5秒
+//        do {
+//            let (_, response) = try await session.data(for: request)
+//            if let httpResponse = response as? HTTPURLResponse {
+//                if httpResponse.statusCode == 200 {
+//                    print("Proxy is responsive")
+//                    return true
+//                } else {
+//                    print("Received non-200 status code: \(httpResponse.statusCode)")
+//                }
+//            }
+//        } catch {
+//            print("Probe failed: \(error.localizedDescription)")
+//        }
+//        return false
+//    }
+
     // 封装获取子文件的第一个文件方法
     func fetchFirstChildFile(for path: String) async throws -> WebDAVFile? {
         guard var request = authorizedRequest(path: path, method: .propfind) else {
@@ -726,12 +758,11 @@ public extension WebDAV {
             throw WebDAVError.nsError(error)
         }
     }
-    
-    
+
     func chunkedDownload(webDAVFile: WebDAVFile, chunkSize: Int = 5 * 1024 * 1024, request: URLRequest) async throws -> (URL, URLResponse) {
         let totalSize = Int(webDAVFile.size)
         print("文件总大小: \(totalSize) 字节")
-        
+
         // 分块计算
         var chunks: [(start: Int, end: Int)] = []
         var start = 0
@@ -746,30 +777,30 @@ public extension WebDAV {
         let tempFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         FileManager.default.createFile(atPath: tempFileURL.path, contents: nil, attributes: nil)
         let fileHandle = try FileHandle(forWritingTo: tempFileURL)
-        
+
         // 用于保存最后一个分块的响应（URLResponse）
         var finalResponse: URLResponse?
-        
+
         // 创建并发下载任务
         var session = URLSession.shared
-        
+
         if Socks5ProxyManager.shared.isProxyActive() {
             session = URLSession(configuration: Socks5ProxyManager.shared.getProxySessionConfiguration()!)
         }
-        
+
         let maxConcurrentDownloads = 40 // 控制并发请求数，避免过多的并发请求影响性能
         var currentIndex = 0
         // 异步并发下载每个分块
         while currentIndex < chunks.count {
-            let remainingChunks = chunks[currentIndex..<min(currentIndex + maxConcurrentDownloads, chunks.count)]
+            let remainingChunks = chunks[currentIndex ..< min(currentIndex + maxConcurrentDownloads, chunks.count)]
             let downloadTasks = remainingChunks.map { chunk -> Task<Void, Never> in
                 Task {
                     do {
                         var rangeRequest = request
                         rangeRequest.setValue("bytes=\(chunk.start)-\(chunk.end)", forHTTPHeaderField: "Range")
-                        
+
                         print("正在下载分块 \(currentIndex + 1)/\(chunks.count), 范围: \(chunk.start)-\(chunk.end)")
-                        
+
                         // 下载分块并写入文件
                         let (chunkData, response) = try await session.data(for: rangeRequest)
                         fileHandle.seek(toFileOffset: UInt64(chunk.start))
@@ -781,7 +812,7 @@ public extension WebDAV {
                     }
                 }
             }
-            
+
             // 等待当前批次下载完成
             await withTaskGroup(of: Void.self) { group in
                 for task in downloadTasks {
@@ -790,20 +821,19 @@ public extension WebDAV {
                     }
                 }
             }
-            
+
             // 更新当前索引，开始下一个批次
             currentIndex += maxConcurrentDownloads
         }
-        
+
         // 确保文件写入完成后返回有效的响应
         fileHandle.closeFile()
         guard let finalResponse = finalResponse else {
             throw WebDAVError.unsupported
         }
-        
+
         return (tempFileURL, finalResponse)
     }
-
 }
 
 /// 从 Content-Disposition 提取文件名的函数
@@ -821,8 +851,6 @@ private func extractFileName(from contentDisposition: String) -> String? {
     return nil
 }
 
-
-
 // 扩展 WebDAV 类以实现请求创建
 public extension WebDAV {
     /// 创建一个授权的 URL 请求，支持两种认证方式
@@ -832,46 +860,46 @@ public extension WebDAV {
     /// - Returns: 授权后的 URL 请求
     func authorizedRequest(path: String, method: HTTPMethod) -> URLRequest? {
         // 对路径进行 URL 编码，确保特殊字符不会引发错误
-          let shouldEncode = self.shouldEncode(path: path)
-          let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
+        let shouldEncode = self.shouldEncode(path: path)
+        let encodedPath = shouldEncode ? path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path : path
 
-          // 拼接完整的 URL 字符串
-          let baseURLString = self.baseURL.absoluteString
-          let fullPath: String
+        // 拼接完整的 URL 字符串
+        let baseURLString = self.baseURL.absoluteString
+        let fullPath: String
 
-          // 判断 baseURL 是否已经包含 path 部分
-          if baseURLString.hasSuffix("/") {
-              fullPath = baseURLString + (encodedPath.hasPrefix("/") ? String(encodedPath.dropFirst()) : encodedPath)
-          } else {
-              fullPath = baseURLString + (encodedPath.hasPrefix("/") ? encodedPath : "/" + encodedPath)
-          }
-          
-          // 创建 URL 对象
-          guard let url = URL(string: fullPath) else {
-              print("Error: 无法生成有效的 URL")
-              return nil
-          }
-          print("传入后得到的URL \(url)")
-          
-          var request = URLRequest(url: url)
-          request.httpMethod = method.rawValue
-          request.timeoutInterval = self.timeoutInterval
+        // 判断 baseURL 是否已经包含 path 部分
+        if baseURLString.hasSuffix("/") {
+            fullPath = baseURLString + (encodedPath.hasPrefix("/") ? String(encodedPath.dropFirst()) : encodedPath)
+        } else {
+            fullPath = baseURLString + (encodedPath.hasPrefix("/") ? encodedPath : "/" + encodedPath)
+        }
 
-          // 设置认证头部
-          if let auth = self.auth {
-              request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
-          } else if let headerFields = self.headerFields {
-              for (key, value) in headerFields {
-                  request.setValue(value, forHTTPHeaderField: key)
-              }
-          }
+        // 创建 URL 对象
+        guard let url = URL(string: fullPath) else {
+            print("Error: 无法生成有效的 URL")
+            return nil
+        }
+        print("传入后得到的URL \(url)")
 
-          // 如果是 PROPFIND 请求，设置 Depth 头部
-          if method == .propfind {
-              request.setValue("1", forHTTPHeaderField: "Depth")
-          }
-          
-          return request
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        request.timeoutInterval = self.timeoutInterval
+
+        // 设置认证头部
+        if let auth = self.auth {
+            request.setValue("Basic \(auth)", forHTTPHeaderField: "Authorization")
+        } else if let headerFields = self.headerFields {
+            for (key, value) in headerFields {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
+        }
+
+        // 如果是 PROPFIND 请求，设置 Depth 头部
+        if method == .propfind {
+            request.setValue("1", forHTTPHeaderField: "Depth")
+        }
+
+        return request
     }
 
     /// - Parameters:

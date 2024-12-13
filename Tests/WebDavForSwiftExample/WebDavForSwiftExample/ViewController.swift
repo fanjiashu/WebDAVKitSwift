@@ -28,7 +28,7 @@ class ViewController: UIViewController {
          //let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "HC-Auth-Token=98a07f2a-01c3-4b21-8f4f-566093e00fa1")
         //WADæµè¯ï¼URL = https://file.workspace.heiyu.space/_lzc/files/home, lzc-auth = Lzc-Auth-Token=f3093f1f-1770-43f3-8057-538353777a34
         //Lzc-Auth-Token=a930479e-7681-4573-a8cd-468149425ece
-        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "Lzc-Auth-Token=86f86476-31d2-4e7d-9a28-3cae3a236817")
+        let webDAV = WebDAV(baseURL: "https://file.workspace.heiyu.space/_lzc/files/home", port: 443, cookie: "Lzc-Auth-Token=61daf3e7-4d8f-433a-93ed-87aa70c8b63f")
         print("Base URL: \(webDAV.baseURL)")
 
         let fileManager = WebDAVFileManager(webDAV: webDAV)
@@ -55,7 +55,7 @@ class ViewController: UIViewController {
                 
                 
                 let filePaths = [
-                    "/2.iso",
+                    "/2.mkv",
                 ]
                 await downloadMultipleFiles(filePaths: filePaths,fileManager: fileManager)
                 
