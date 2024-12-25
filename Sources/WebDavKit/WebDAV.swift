@@ -530,13 +530,16 @@ public extension WebDAV {
     /// - Parameters:
     ///   - path: 文件路径
     ///   - useStream: 是否使用流式下载
+    ///   - destinationPath: 流式下载指定的路径
     /// - Returns: 下载后的文件的临时 URL
     /// - Throws: WebDAVError
-    func downloadFile(atPath path: String, useStream: Bool = false) async throws -> URL {
+    ///
+    func downloadFile(atPath path: String, useStream: Bool = false, destinationPath: URL? = nil) async throws -> URL {
         // 获取授权请求
         guard let request = authorizedRequest(path: path, method: .get) else {
             throw WebDAVError.invalidCredentials
         }
+        
         do {
             // 使用下载请求方法，根据 `useStream` 参数选择是否流式下载
             let (tempDownloadURL, response) = try await downloadRequest(request, useStream: useStream)
@@ -548,37 +551,47 @@ public extension WebDAV {
                 throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
             }
 
-            // 提取文件扩展名，首先从 path 中提取
-            let fileExtension = (path as NSString).pathExtension
-            var fileName = (path as NSString).lastPathComponent // 使用传入路径中的文件名
+            // 确定目标存储路径
+            let targetURL: URL
+            if let destinationPath = destinationPath {
+                // 如果传入了外部指定路径，直接使用
+                targetURL = destinationPath
+            } else {
+                // 如果未指定路径，使用临时目录并生成文件名
+                let fileExtension = (path as NSString).pathExtension
+                var fileName = (path as NSString).lastPathComponent
 
-            // 尝试从响应头中提取文件名（Content-Disposition）
-            if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
-               let extractedFileName = extractFileName(from: contentDisposition)
-            {
-                fileName = extractedFileName
-            } else if !fileExtension.isEmpty && !fileName.hasSuffix(fileExtension) {
-                // 如果没有 Content-Disposition, 且文件名没有扩展名，则添加扩展名
-                fileName += ".\(fileExtension)"
+                // 尝试从响应头中提取文件名（Content-Disposition）
+                if let contentDisposition = httpResponse.value(forHTTPHeaderField: "Content-Disposition"),
+                   let extractedFileName = extractFileName(from: contentDisposition)
+                {
+                    fileName = extractedFileName
+                } else if !fileExtension.isEmpty && !fileName.hasSuffix(fileExtension) {
+                    // 如果没有 Content-Disposition 且文件名没有扩展名，则添加扩展名
+                    fileName += ".\(fileExtension)"
+                }
+
+                targetURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
             }
 
-            // 将文件保存到临时目录，带有正确的文件格式
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-
-            // 检查文件是否已存在，存在则删除，避免冲突
-            if FileManager.default.fileExists(atPath: tempURL.path) {
-                try FileManager.default.removeItem(at: tempURL)
+            // 检查目标路径是否已存在，存在则删除
+            if FileManager.default.fileExists(atPath: targetURL.path) {
+                try FileManager.default.removeItem(at: targetURL)
             }
 
-            // 将下载的文件移动到带有正确扩展名的临时文件路径
-            try FileManager.default.moveItem(at: tempDownloadURL, to: tempURL)
+            // 如果目标路径是临时路径，则移动文件；否则直接写入
+            if destinationPath == nil {
+                try FileManager.default.moveItem(at: tempDownloadURL, to: targetURL)
+            } else {
+                // 直接将流式数据写入指定路径
+                try FileManager.default.copyItem(at: tempDownloadURL, to: targetURL)
+            }
 
-            return tempURL
+            return targetURL
         } catch let error as NSError {
             throw WebDAVError.nsError(error)
         }
     }
-
     /// 统一的发送请求方法
     private func sendRequest(_ request: URLRequest) async throws -> (Data, URLResponse) {
         if Socks5ProxyManager.shared.isProxyActive() {
