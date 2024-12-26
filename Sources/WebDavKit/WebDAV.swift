@@ -460,6 +460,58 @@ public extension WebDAV {
             throw WebDAVError.nsError(error)
         }
     }
+    
+    /// 获取远程 WebDAV 服务器上文件的大小
+    /// - Parameter path: 文件的路径
+    /// - Returns: 文件的大小（以字节为单位）
+    func fileSize(atPath path: String) async throws -> Int64 {
+        // 使用 authorizedRequest 函数创建授权的请求
+        guard var request = authorizedRequest(path: path, method: .propfind) else {
+            throw WebDAVError.invalidCredentials
+        }
+        
+        // 设置 PROPFIND 请求的 body，要求返回文件的大小
+        let body = """
+        <?xml version="1.0" encoding="utf-8" ?>
+        <D:propfind xmlns:D="DAV:">
+            <D:prop>
+                <D:getcontentlength/>
+            </D:prop>
+        </D:propfind>
+        """
+        request.httpBody = body.data(using: .utf8)
+        request.setValue("0", forHTTPHeaderField: "Depth") // 只检查当前资源
+
+        do {
+            // 发送请求并获取响应
+            let (data, response) = try await sendRequest(request)
+            guard let response = response as? HTTPURLResponse,
+                  200 ... 299 ~= response.statusCode else {
+                print("获取文件大小报错 \(response) 原始path：\(path)")
+                throw WebDAVError.getError(response: response, error: nil) ?? WebDAVError.unsupported
+            }
+            
+            // 打印原始 XML 响应，帮助调试
+            if let xmlString = String(data: data, encoding: .utf8) {
+                print("Full XML Response: \(xmlString)")
+            }
+            
+            // 使用 XMLHash 解析返回的 XML 数据
+            let xml = XMLHash.parse(data)
+            
+            // 获取 <getcontentlength> 节点的值，即文件大小
+            let contentLength = xml["D:multistatus"]["D:response"]["D:propstat"]["D:prop"]["D:getcontentlength"].element?.text
+            
+            if let fileSizeStr = contentLength, let fileSize = Int64(fileSizeStr) {
+                return fileSize
+            } else {
+                throw WebDAVError.unsupported
+            }
+            
+        } catch {
+            throw WebDAVError.nsError(error)
+        }
+    }
 
     /// 复制指定路径的文件
     /// - Parameters:
