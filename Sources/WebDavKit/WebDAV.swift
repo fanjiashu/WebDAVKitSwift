@@ -587,6 +587,7 @@ public extension WebDAV {
     /// - Throws: WebDAVError
     ///
     // 1. 主下载函数
+    @available(iOS 15.0, macOS 12.0, *)
     func downloadFile(atPath path: String, useStream: Bool = false, destinationPath: URL? = nil) async throws -> URL {
         // 获取授权请求
         guard let request = authorizedRequest(path: path, method: .get) else {
@@ -673,7 +674,6 @@ public extension WebDAV {
             return try await URLSession.shared.data(for: request)
         }
     }
-
     /// 统一的下载请求方法，带有重试机制
     private func downloadRequest(_ request: URLRequest, useStream: Bool = false) async throws -> (URL, URLResponse) {
         if #available(iOS 15.0, macOS 12.0, *) {
