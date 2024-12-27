@@ -725,65 +725,145 @@ public extension WebDAV {
         }
     }
 
-
     @available(iOS 15.0, macOS 12.0, *)
-    private func streamDownload(using session: URLSession, for request: URLRequest, destinationURL: URL) async throws -> (URL, URLResponse) {
-        print("WAD测试：开始流式下载到: \(destinationURL.path)")
+    private func streamDownload(using session: URLSession,
+                              for originalRequest: URLRequest,
+                              destinationURL: URL) async throws -> (URL, URLResponse) {
+        print("""
+            === 流式下载详细日志 ===
+            时间: \(Date())
+            用户: fanjiashu
+            """)
         
-        // 确保目标文件存在
+        // 1. 获取文件实际大小
+        let path = originalRequest.url?.lastPathComponent ?? ""
+        let totalSize: Int64
+        do {
+            totalSize = try await fileSize(atPath: path)
+            print("""
+                1. 文件信息:
+                - 路径: \(path)
+                - 总大小: \(totalSize / 1024 / 1024) MB (\(totalSize) 字节)
+                """)
+        } catch {
+            print("错误: 无法获取文件大小 - \(error)")
+            throw error
+        }
+        
+        // 2. 创建或打开目标文件
+        print("2. 准备目标文件: \(destinationURL.path)")
         if !FileManager.default.fileExists(atPath: destinationURL.path) {
             FileManager.default.createFile(atPath: destinationURL.path, contents: nil)
-            print("WAD测试：创建目标文件")
+            print("- 已创建新文件")
         }
         
-        // 获取文件句柄
         let fileHandle = try FileHandle(forWritingTo: destinationURL)
         defer {
+            try? fileHandle.synchronize()
             try? fileHandle.close()
+            print("7. 文件句柄已关闭")
         }
+        print("3. 成功打开文件句柄")
         
-        print("WAD测试：成功打开文件句柄")
+        // 3. 设置分片下载参数
+        let chunkSize: Int64 = 20 * 1024 * 1024 // 20MB per chunk
+        var downloadedSize: Int64 = 0
+        let startTime = Date()
+        var lastProgressTime = startTime
+        var lastDownloadedSize: Int64 = 0
         
-        let (bytes, response) = try await session.bytes(for: request)
+        print("""
+            4. 开始分片下载:
+            - 分片大小: \(chunkSize / 1024 / 1024) MB
+            - 预计分片数: \((totalSize + chunkSize - 1) / chunkSize)
+            """)
         
-        // 缓冲区大小（1 MB）
-        let bufferSize = 1024 * 1024
-        var buffer = Data(capacity: bufferSize)
-        var totalBytesWritten: Int64 = 0
+        // 保存第一个响应用于返回
+        var firstResponse: URLResponse?
         
-        print("WAD测试：开始接收数据流")
-        
-        for try await byte in bytes {
-            buffer.append(byte)
-            if buffer.count >= bufferSize {
-                try fileHandle.write(contentsOf: buffer)
-                totalBytesWritten += Int64(buffer.count)
-                
-                // 每写入1MB记录一次日志
-                print("WAD测试：已写入 \(totalBytesWritten / 1024 / 1024) MB")
-                
-                // 每5MB同步一次到磁盘
-                if totalBytesWritten % (5 * 1024 * 1024) == 0 {
-                    try fileHandle.synchronize()
-                    print("WAD测试：已同步到磁盘")
-                }
-                
-                buffer.removeAll(keepingCapacity: true)
+        while downloadedSize < totalSize {
+            let endByte = min(downloadedSize + chunkSize - 1, totalSize - 1)
+            var rangeRequest = originalRequest
+            rangeRequest.setValue("bytes=\(downloadedSize)-\(endByte)", forHTTPHeaderField: "Range")
+            
+            // 4. 下载当前分片
+            let (bytes, response) = try await session.bytes(for: rangeRequest)
+            
+            // 保存第一个响应
+            if firstResponse == nil {
+                firstResponse = response
             }
-        }
-        
-        // 写入剩余数据
-        if !buffer.isEmpty {
-            try fileHandle.write(contentsOf: buffer)
-            totalBytesWritten += Int64(buffer.count)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 206 else {
+                print("错误: 服务器不支持断点续传或返回了错误的状态码")
+                throw URLError(.badServerResponse)
+            }
+            
+            // 5. 写入分片数据
+            var chunkBuffer = Data(capacity: 1024 * 1024) // 1MB buffer
+            var chunkBytesRead: Int64 = 0
+            
+            for try await byte in bytes {
+                chunkBuffer.append(byte)
+                chunkBytesRead += 1
+                
+                if chunkBuffer.count >= 1024 * 1024 { // 每1MB写入一次
+                    try fileHandle.write(contentsOf: chunkBuffer)
+                    chunkBuffer.removeAll(keepingCapacity: true)
+                    
+                    // 6. 计算和显示下载速度（每秒更新一次）
+                    let now = Date()
+                    if now.timeIntervalSince(lastProgressTime) >= 1.0 {
+                        let currentDownloadedSize = downloadedSize + chunkBytesRead
+                        let timeInterval = now.timeIntervalSince(lastProgressTime)
+                        let speed = Double(currentDownloadedSize - lastDownloadedSize) / timeInterval / 1024 / 1024
+                        let totalProgress = Double(currentDownloadedSize) * 100.0 / Double(totalSize)
+                        
+                        print("""
+                            下载进度:
+                            - 已下载: \(currentDownloadedSize / 1024 / 1024) MB
+                            - 总进度: \(String(format: "%.2f", totalProgress))%
+                            - 当前速度: \(String(format: "%.2f", speed)) MB/s
+                            - 已用时间: \(String(format: "%.1f", now.timeIntervalSince(startTime))) 秒
+                            """)
+                        
+                        lastProgressTime = now
+                        lastDownloadedSize = currentDownloadedSize
+                    }
+                }
+            }
+            
+            // 写入分片剩余数据
+            if !chunkBuffer.isEmpty {
+                try fileHandle.write(contentsOf: chunkBuffer)
+            }
+            
             try fileHandle.synchronize()
+            downloadedSize += chunkBytesRead
         }
         
-        print("WAD测试：流式下载完成，总共写入: \(totalBytesWritten) 字节")
+        let endTime = Date()
+        let totalTime = endTime.timeIntervalSince(startTime)
+        let averageSpeed = Double(totalSize) / totalTime / 1024 / 1024
         
-        return (destinationURL, response)
+        print("""
+            6. 下载完成:
+            - 总计下载: \(downloadedSize / 1024 / 1024) MB
+            - 总耗时: \(String(format: "%.2f", totalTime)) 秒
+            - 平均速度: \(String(format: "%.2f", averageSpeed)) MB/s
+            - 完成时间: \(endTime)
+            """)
+        
+        // 确保我们有响应可以返回
+        guard let finalResponse = firstResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return (destinationURL, finalResponse)
     }
-
+    
+    
     // 封装获取子文件的第一个文件方法
     func fetchFirstChildFile(for path: String) async throws -> WebDAVFile? {
         guard var request = authorizedRequest(path: path, method: .propfind) else {
