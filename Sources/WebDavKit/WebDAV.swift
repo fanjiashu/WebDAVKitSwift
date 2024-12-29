@@ -995,6 +995,183 @@ public extension WebDAV {
 
         return (tempFileURL, finalResponse)
     }
+    
+    
+    @available(iOS 15.0, macOS 12.0, *)
+    func downloadFileFirstPart(atPath path: String, destinationPath: URL, initialSize: Int64 = 5 * 1024 * 1024) async throws -> (URL, Int64, URLResponse) {
+        // 获取授权请求
+        guard let request = authorizedRequest(path: path, method: .get) else {
+            print("WAD测试：获取授权请求失败")
+            throw WebDAVError.invalidCredentials
+        }
+        
+        // 获取session
+        let session = Socks5ProxyManager.shared.isProxyActive()
+            ? URLSession(configuration: Socks5ProxyManager.shared.getProxySessionConfiguration() ?? .default)
+            : URLSession.shared
+        
+        print("""
+            === 开始下载文件头部 ===
+            时间: \(Date())
+            用户: fanjiashu
+            """)
+        
+        // 1. 获取文件实际大小
+        let totalSize: Int64 = try await fileSize(atPath: path)
+        print("""
+            1. 文件信息:
+            - 路径: \(path)
+            - 总大小: \(totalSize / 1024 / 1024) MB
+            - 初始下载大小: \(initialSize / 1024 / 1024) MB
+            """)
+        
+        // 2. 创建目标文件
+        if FileManager.default.fileExists(atPath: destinationPath.path) {
+            try FileManager.default.removeItem(at: destinationPath)
+        }
+        FileManager.default.createFile(atPath: destinationPath.path, contents: nil)
+        print("2. 创建目标文件: \(destinationPath.path)")
+        
+        // 3. 准备文件句柄
+        let fileHandle = try FileHandle(forWritingTo: destinationPath)
+        defer {
+            try? fileHandle.synchronize()
+            try? fileHandle.close()
+        }
+        
+        // 4. 设置Range请求下载文件头部
+        var rangeRequest = request
+        let downloadSize = min(initialSize, totalSize)
+        rangeRequest.setValue("bytes=0-\(downloadSize - 1)", forHTTPHeaderField: "Range")
+        
+        let (bytes, response) = try await session.bytes(for: rangeRequest)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 206 else {
+            print("错误: 服务器不支持断点续传")
+            throw URLError(.badServerResponse)
+        }
+        
+        // 5. 写入头部数据
+        var downloadedSize: Int64 = 0
+        var buffer = Data(capacity: 1024 * 1024) // 1MB buffer
+        
+        for try await byte in bytes {
+            buffer.append(byte)
+            downloadedSize += 1
+            
+            if buffer.count >= 1024 * 1024 { // 每1MB写入一次
+                try fileHandle.write(contentsOf: buffer)
+                buffer.removeAll(keepingCapacity: true)
+                
+                // 显示进度
+                let progress = Double(downloadedSize) * 100.0 / Double(downloadSize)
+                print("下载进度: \(String(format: "%.2f", progress))%")
+            }
+            
+            if downloadedSize >= downloadSize {
+                break
+            }
+        }
+        
+        // 写入剩余数据
+        if !buffer.isEmpty {
+            try fileHandle.write(contentsOf: buffer)
+        }
+        
+        try fileHandle.synchronize()
+        print("文件头部下载完成: \(downloadedSize / 1024 / 1024) MB")
+        
+        return (destinationPath, totalSize, response)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    func continueDownload(atPath path: String, destinationPath: URL, fromOffset: Int64, totalSize: Int64) async throws {
+        // 获取授权请求
+        guard let request = authorizedRequest(path: path, method: .get) else {
+            print("WAD测试：获取授权请求失败")
+            throw WebDAVError.invalidCredentials
+        }
+        
+        // 获取session
+        let session = Socks5ProxyManager.shared.isProxyActive()
+            ? URLSession(configuration: Socks5ProxyManager.shared.getProxySessionConfiguration() ?? .default)
+            : URLSession.shared
+        
+        print("""
+            === 继续下载剩余部分 ===
+            - 开始位置: \(fromOffset / 1024 / 1024) MB
+            - 剩余大小: \((totalSize - fromOffset) / 1024 / 1024) MB
+            """)
+        
+        // 打开文件句柄并定位到续传位置
+        let fileHandle = try FileHandle(forWritingTo: destinationPath)
+        try fileHandle.seek(toOffset: UInt64(fromOffset))
+        defer {
+            try? fileHandle.synchronize()
+            try? fileHandle.close()
+        }
+        
+        let chunkSize: Int64 = 20 * 1024 * 1024 // 20MB per chunk
+        var downloadedSize = fromOffset
+        let startTime = Date()
+        var lastProgressTime = startTime
+        var lastDownloadedSize = fromOffset
+        
+        while downloadedSize < totalSize {
+            let endByte = min(downloadedSize + chunkSize - 1, totalSize - 1)
+            var rangeRequest = request
+            rangeRequest.setValue("bytes=\(downloadedSize)-\(endByte)", forHTTPHeaderField: "Range")
+            
+            let (bytes, response) = try await session.bytes(for: rangeRequest)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 206 else {
+                throw URLError(.badServerResponse)
+            }
+            
+            var buffer = Data(capacity: 1024 * 1024)
+            var chunkBytesRead: Int64 = 0
+            
+            for try await byte in bytes {
+                buffer.append(byte)
+                chunkBytesRead += 1
+                
+                if buffer.count >= 1024 * 1024 {
+                    try fileHandle.write(contentsOf: buffer)
+                    buffer.removeAll(keepingCapacity: true)
+                    
+                    // 更新进度
+                    let now = Date()
+                    if now.timeIntervalSince(lastProgressTime) >= 1.0 {
+                        let currentDownloadedSize = downloadedSize + chunkBytesRead
+                        let timeInterval = now.timeIntervalSince(lastProgressTime)
+                        let speed = Double(currentDownloadedSize - lastDownloadedSize) / timeInterval / 1024 / 1024
+                        let progress = Double(currentDownloadedSize) * 100.0 / Double(totalSize)
+                        
+                        print("""
+                            下载进度:
+                            - 已下载: \(currentDownloadedSize / 1024 / 1024) MB
+                            - 进度: \(String(format: "%.2f", progress))%
+                            - 速度: \(String(format: "%.2f", speed)) MB/s
+                            """)
+                        
+                        lastProgressTime = now
+                        lastDownloadedSize = currentDownloadedSize
+                    }
+                }
+            }
+            
+            if !buffer.isEmpty {
+                try fileHandle.write(contentsOf: buffer)
+            }
+            
+            try fileHandle.synchronize()
+            downloadedSize += chunkBytesRead
+        }
+        
+        print("文件下载完成")
+    }
 }
 
 /// 从 Content-Disposition 提取文件名的函数
